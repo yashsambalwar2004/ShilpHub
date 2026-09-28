@@ -208,6 +208,14 @@
         </div>
       </div>
 
+      <!-- Change Requests Section -->
+      <div class="card" id="crCard" style="display: none;">
+        <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 12px;">Your Design Requests</h2>
+        <div id="crList" style="display: flex; flex-direction: column; gap: 10px;">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
       <!-- Payment Summary Receipt Card -->
       <div class="card">
         <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 4px;" id="txtPaymentTitle">Payment Status</h2>
@@ -575,6 +583,33 @@
         `;
         timelineEl.appendChild(item);
       });
+
+      // Change Requests list
+      const crCard = document.getElementById('crCard');
+      const crListEl = document.getElementById('crList');
+      if (data.change_requests && data.change_requests.length > 0) {
+        crCard.style.display = 'block';
+        crListEl.innerHTML = '';
+        data.change_requests.forEach(cr => {
+          const isPending = cr.status === 'pending';
+          const isAccepted = cr.status === 'accepted';
+          const statusColor = isPending ? 'var(--gold)' : (isAccepted ? '#2ECC71' : '#E74C3C');
+          
+          const crItem = document.createElement('div');
+          crItem.style.cssText = 'background:var(--surface-elevated); padding:12px; border-radius:10px; border-left: 3px solid ' + statusColor;
+          crItem.innerHTML = `
+            <div style="display:flex; justify-content:space-between; margin-bottom: 4px;">
+              <strong style="color:var(--text); text-transform:capitalize;">${cr.change_type.replace('_', ' ')}</strong>
+              <span style="color:${statusColor}; font-size:12px; font-weight:bold; text-transform:uppercase;">${cr.status}</span>
+            </div>
+            <div style="font-size:13px; color:var(--text-muted); margin-bottom: 6px;">${cr.description}</div>
+            ${cr.murtikar_response ? `<div style="font-size:12px; color:#A0A5B5; background:rgba(255,255,255,0.05); padding:6px; border-radius:4px;"><b>Artisan Reply:</b> ${cr.murtikar_response}</div>` : ''}
+          `;
+          crListEl.appendChild(crItem);
+        });
+      } else {
+        crCard.style.display = 'none';
+      }
 
       // Payments list
       const payListEl = document.getElementById('paymentsList');
