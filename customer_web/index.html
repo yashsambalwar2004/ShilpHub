@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MurtiTrack — Customer Order Tracking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #D35400;
+      --primary-light: #E67E22;
+      --gold: #F39C12;
+      --gold-glow: rgba(243, 156, 18, 0.35);
+      --bg: #0F0F17;
+      --surface: #181824;
+      --surface-elevated: #222232;
+      --border: rgba(255, 255, 255, 0.1);
+      --text: #F8F9FA;
+      --text-muted: #9BA1B0;
+      --success: #2ECC71;
+      --warning: #F1C40F;
+      --danger: #E74C3C;
+      --radius: 16px;
+      --grad-center: #301705;
+    }
+    
+    [data-theme="light"] {
+      --bg: #F5F6FA;
+      --surface: #FFFFFF;
+      --surface-elevated: #F8F9FA;
+      --border: rgba(0, 0, 0, 0.1);
+      --text: #1A1A24;
+      --text-muted: #6B6B7A;
+      --grad-center: #FAD7A1;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', 'Noto Sans Devanagari', sans-serif; }
+    body { background-color: var(--bg); background-image: radial-gradient(circle at 50% 0%, var(--grad-center) 0%, var(--bg) 60%); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; transition: background-color 0.3s, color 0.3s; }
+
+    .header-bar { width: 100%; max-width: 760px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+    .brand-title { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 800; background: linear-gradient(90deg, #F39C12, #E67E22); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .lang-toggle { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 3px; }
+    .lang-btn { background: none; border: none; color: var(--text-muted); font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 16px; cursor: pointer; transition: all 0.2s; }
+    .lang-btn.active { background: var(--primary); color: white; }
+
+    .container { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 20px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+    .card.glow { border-color: rgba(243, 156, 18, 0.4); box-shadow: 0 10px 40px var(--gold-glow); }
+
+    /* Login View */
+    .hero-badge { display: inline-block; background: rgba(211, 84, 0, 0.2); border: 1px solid var(--primary); color: var(--gold); padding: 4px 14px; border-radius: 30px; font-size: 12px; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+    .form-group { margin-bottom: 18px; text-align: left; }
+    .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); }
+    .form-control { width: 100%; background: var(--surface-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; color: var(--text); font-size: 16px; outline: none; transition: border-color 0.2s, background-color 0.3s, color 0.3s; }
+    .form-control:focus { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-glow); }
+    
+    .btn { display: inline-flex; justify-content: center; align-items: center; gap: 8px; width: 100%; padding: 14px 24px; border-radius: 12px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; box-shadow: 0 4px 15px rgba(211, 84, 0, 0.4); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(211, 84, 0, 0.6); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: rgba(255,255,255,0.05); }
+
+    /* Tracking View */
+    .order-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+    .booking-tag { font-size: 13px; font-weight: 700; color: var(--gold); background: rgba(243, 156, 18, 0.15); padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(243, 156, 18, 0.3); }
+    .idol-title { font-size: 24px; font-weight: 800; margin-top: 6px; }
+    .customer-name { color: var(--text-muted); font-size: 14px; }
+
+    /* Stepper / Timeline */
+    .timeline { position: relative; margin: 30px 0; padding-left: 36px; }
+    .timeline::before { content: ''; position: absolute; left: 15px; top: 10px; bottom: 10px; width: 3px; background: var(--border); }
+    .step-item { position: relative; margin-bottom: 28px; }
+    .step-item:last-child { margin-bottom: 0; }
+    .step-node { position: absolute; left: -36px; top: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--surface-elevated); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--text-muted); z-index: 2; }
+    
+    .step-item.completed .step-node { background: var(--success); border-color: var(--success); color: white; }
+    .step-item.active .step-node { background: var(--gold); border-color: #fff; color: #111; box-shadow: 0 0 15px var(--gold-glow); animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(243, 156, 18, 0); } 100% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0); } }
+
+    .step-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .step-item.active .step-title { color: var(--gold); }
+    .step-desc { font-size: 14px; color: var(--text-muted); }
+    .step-date { font-size: 12px; color: #6E7487; margin-top: 4px; }
+
+    /* Payment Receipt Card */
+    .payment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin: 18px 0; }
+    .pay-stat { background: var(--surface-elevated); padding: 14px; border-radius: 12px; border: 1px solid var(--border); }
+    .pay-stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+    .pay-stat-val { font-size: 20px; font-weight: 800; margin-top: 4px; }
+    .text-success { color: var(--success); }
+    .text-warning { color: var(--gold); }
+    .text-danger { color: var(--danger); }
+
+    /* Workshop Card */
+    .workshop-card { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; }
+    .workshop-actions { display: flex; gap: 10px; }
+    .btn-action { padding: 10px 16px; border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-call { background: rgba(46, 204, 113, 0.15); color: #2ECC71; border: 1px solid rgba(46, 204, 113, 0.3); }
+    .btn-wa { background: rgba(37, 211, 102, 0.2); color: #25D366; border: 1px solid rgba(37, 211, 102, 0.4); }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.active { display: flex; }
+    .modal-content { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 28px; max-width: 500px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
+    
+    .rating-stars { display: flex; gap: 8px; justify-content: center; margin: 20px 0; font-size: 28px; cursor: pointer; }
+    .star { color: #444; transition: color 0.2s; }
+    .star.selected { color: var(--gold); }
+
+    .alert { padding: 12px 16px; border-radius: 10px; font-size: 14px; margin-bottom: 16px; display: none; }
+    .alert-danger { background: rgba(231, 76, 60, 0.15); border: 1px solid var(--danger); color: #FF7675; }
+    .alert-success { background: rgba(46, 204, 113, 0.15); border: 1px solid var(--success); color: #55EFC4; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header-bar">
+    <div class="brand-title">
+      <span>🪔</span>
+      <span>MurtiTrack</span>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <button id="themeToggleBtn" class="lang-btn" onclick="toggleTheme()" style="font-size: 16px; padding: 4px 8px; border: 1px solid var(--border); background: var(--surface);">☀️</button>
+      <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('hi')">हिन्दी</button>
+        <button class="lang-btn" onclick="setLang('mr')">मराठी</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginSection" class="card glow" style="text-align: center;">
+      <span class="hero-badge" id="txtBlessing">॥ श्री गणेशाय नमः ॥</span>
+      <h2 style="font-size: 26px; font-weight: 800; margin-bottom: 8px;" id="txtLoginTitle">Track Your Idol Order</h2>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;" id="txtLoginSubtitle">Enter your booking details provided on your workshop token slip.</p>
+
+      <div id="loginAlert" class="alert alert-danger"></div>
+
+      <form id="trackingForm" onsubmit="handleCustomerLogin(event)">
+        <div class="form-group">
+          <label id="lblBookingNumber">Booking Number (बुकिंग नंबर)</label>
+          <input type="text" id="inpBookingNo" class="form-control" placeholder="e.g. MUR-2026-00001" required>
+        </div>
+
+        <div class="form-group">
+          <label id="lblPhone">Registered Mobile Number (मोबाइल नंबर)</label>
+          <input type="tel" id="inpPhone" class="form-control" placeholder="10-digit mobile number" required pattern="[6-9][0-9]{9}">
+        </div>
+
+        <div class="form-group">
+          <label id="lblPin">Security PIN or Password (पिन / पासवर्ड)</label>
+          <input type="password" id="inpPin" class="form-control" placeholder="4-6 digit security PIN" required>
+        </div>
+
+        <button type="submit" id="btnTrackOrder" class="btn btn-primary" style="margin-top: 10px;">
+          <span>🔍</span> <span id="txtBtnTrack">View Order Status</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- TRACKING DETAILS VIEW -->
+    <div id="orderSection" style="display: none; flex-direction: column; gap: 20px;">
+      
+      <!-- Order Header Card -->
+      <div class="card">
+        <div class="order-header">
+          <div>
+            <span class="booking-tag" id="dispBookingNo">MUR-2026-00001</span>
+            <h1 class="idol-title" id="dispIdolDetails">Eco-Friendly Ganesha Idol</h1>
+            <div class="customer-name" id="dispCustomerName">Booked for: Anand Deshmukh</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 12px; color: var(--text-muted);" id="lblDelivery">Expected Delivery</div>
+            <div style="font-size: 18px; font-weight: 800; color: var(--gold);" id="dispDeliveryDate">12 Sep 2026</div>
+          </div>
+        </div>
+
+        <div style="background: var(--surface-elevated); padding: 12px 16px; border-radius: 10px; font-size: 14px; border-left: 3px solid var(--gold);">
+          <span style="color: var(--gold); font-weight: 600;" id="lblSpecialNotes">Special Instructions:</span>
+          <span id="dispNotes" style="color: #D1D5DB;">Traditional saffron pitambar, gold mukut with pearl border.</span>
+        </div>
+      </div>
+
+      <!-- Live Stepper / Production Progress Timeline -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h2 style="font-size: 18px; font-weight: 700;" id="txtTimelineTitle">Production Progress</h2>
+          <span id="txtCurrentStatusBadge" style="background: rgba(46, 204, 113, 0.2); color: #2ECC71; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px;">Painting in Progress</span>
+        </div>
+
+        <div class="timeline" id="timelineList">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div style="margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap;">
+          <button class="btn btn-outline" style="flex: 1;" onclick="openChangeRequestModal()" id="btnReqChange">
+            <span>✏️</span> <span>Request Design Adjustment</span>
+          </button>
+          <button class="btn btn-primary" style="flex: 1;" id="btnRateBlessing" onclick="openRatingModal()">
+            <span>⭐</span> <span>Submit Feedback & Rating</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Payment Summary Receipt Card -->
+      <div class="card">
+        <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 4px;" id="txtPaymentTitle">Payment Status</h2>
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Payments are settled directly with the artisan workshop in cash or UPI.</div>
+
+        <div class="payment-grid">
+          <div class="pay-stat">
+            <div class="pay-stat-label" id="lblTotalAmount">Total Amount</div>
+            <div class="pay-stat-val" id="dispTotalAmount">₹45,000</div>
+          </div>
+          <div class="pay-stat">
+            <div class="pay-stat-label text-success" id="lblPaidAmount">Advance / Paid</div>
+            <div class="pay-stat-val text-success" id="dispPaidAmount">₹15,000</div>
+          </div>
+          <div class="pay-stat">
+            <div class="pay-stat-label text-danger" id="lblBalanceDue">Remaining Balance</div>
+            <div class="pay-stat-val text-danger" id="dispBalanceDue">₹30,000</div>
+          </div>
+        </div>
+
+        <!-- Payments Table -->
+        <div style="margin-top: 14px;">
+          <div style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;" id="lblReceiptHistory">Receipt History</div>
+          <div id="paymentsList" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Murtikar Workshop Contact Card -->
+      <div class="card">
+        <div class="workshop-card">
+          <div>
+            <div style="font-size: 12px; color: var(--text-muted);" id="lblArtisan">Master Artisan / Murtikar</div>
+            <div style="font-size: 18px; font-weight: 700;" id="dispMurtikarShop">Shree Ganesh Kalakendra</div>
+            <div style="font-size: 14px; color: var(--text-muted);" id="dispMurtikarName">Ramesh Chandra Pal • Pune, Kasba Peth</div>
+          </div>
+          <div class="workshop-actions">
+            <a href="#" id="linkCallMurtikar" class="btn-action btn-call">
+              <span>📞</span> <span id="txtBtnCall">Call Workshop</span>
+            </a>
+            <a href="#" id="linkWaMurtikar" target="_blank" class="btn-action btn-wa">
+              <span>💬</span> <span>WhatsApp</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logout / Switch Order -->
+      <div style="text-align: center; margin-bottom: 40px;">
+        <button class="btn btn-outline" style="max-width: 250px; margin: 0 auto;" onclick="logoutCustomer()">
+          <span>🔒</span> <span id="txtBtnLogout">Logout / Switch Order</span>
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- MODAL: CHANGE REQUEST -->
+  <div id="changeModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 8px;">Request Design Adjustment</h3>
+      <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 18px;">Submit your customization request to the murtikar. Minor adjustments will be reviewed promptly.</p>
+      
+      <div id="crAlert" class="alert"></div>
+
+      <div class="form-group">
+        <label>Adjustment Category</label>
+        <select id="crType" class="form-control">
+          <option value="color">Color & Shading Adjustment (रंग व शेडिंग)</option>
+          <option value="ornament">Ornament & Jewellery (आभूषण व अलंकार)</option>
+          <option value="face_expression">Facial Expression (मुखवटा भाव)</option>
+          <option value="size_adjustment">Base / Accessory Size (आकार व बैठक)</option>
+          <option value="other">Other Special Request (इतर विनंती)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Description of desired changes</label>
+        <textarea id="crDescription" class="form-control" rows="4" placeholder="e.g. Please use darker saffron for the pitambar and add traditional gold tilak on forehead..." required></textarea>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button class="btn btn-outline" style="flex: 1;" onclick="closeModals()">Cancel</button>
+        <button class="btn btn-primary" style="flex: 2;" onclick="submitChangeRequest()">Submit Request</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: RATING & FEEDBACK -->
+  <div id="ratingModal" class="modal-overlay">
+    <div class="modal-content" style="text-align: center;">
+      <span style="font-size: 32px;">🪔</span>
+      <h3 style="font-size: 20px; font-weight: 800; margin: 8px 0;">Artisan Blessings & Feedback</h3>
+      <p style="font-size: 14px; color: var(--text-muted);">How satisfied are you with the craft, devotion, and delivery of your idol?</p>
+      
+      <div id="ratingAlert" class="alert"></div>
+
+      <div class="rating-stars" id="starContainer">
+        <!-- 10 Stars -->
+      </div>
+      <div id="starScoreLabel" style="font-size: 16px; font-weight: 700; color: var(--gold); margin-bottom: 14px;">10 / 10 - Outstanding Devotion</div>
+
+      <div class="form-group" style="text-align: left;">
+        <label>Your Feedback / Note to Artisan (Optional)</label>
+        <textarea id="inpRatingNote" class="form-control" rows="3" placeholder="Share your experience and blessings for the murtikar..."></textarea>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button class="btn btn-outline" style="flex: 1;" onclick="closeModals()">Close</button>
+        <button class="btn btn-primary" style="flex: 2;" onclick="submitRating()">Submit Review</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme toggle logic
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('murtitrack_customer_theme', newTheme);
+      document.getElementById('themeToggleBtn').innerText = newTheme === 'dark' ? '☀️' : '🌙';
+    }
+
+    // Initialize theme
+    const savedTheme = localStorage.getItem('murtitrack_customer_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('themeToggleBtn').innerText = savedTheme === 'dark' ? '☀️' : '🌙';
+    });
+
+    let currentLang = 'en';
+    let customerToken = localStorage.getItem('murtitrack_customer_jwt');
+    let cachedBookingData = null;
+    let selectedRating = 10;
+
+    const I18N = {
+      en: {
+        blessing: "॥ श्री गणेशाय नमः ॥",
+        loginTitle: "Track Your Idol Order",
+        loginSubtitle: "Enter your booking details provided on your workshop token slip.",
+        lblBooking: "Booking Number",
+        lblPhone: "Registered Mobile Number",
+        lblPin: "Security PIN or Password",
+        btnTrack: "View Order Status",
+        lblDelivery: "Expected Delivery",
+        notesTitle: "Special Instructions:",
+        timelineTitle: "Production Progress",
+        paymentTitle: "Payment Status",
+        totalAmt: "Total Amount",
+        paidAmt: "Advance / Paid",
+        balanceDue: "Remaining Balance",
+        receiptHistory: "Receipt History",
+        artisan: "Master Artisan / Murtikar",
+        btnCall: "Call Workshop",
+        btnLogout: "Logout / Switch Order",
+        btnReqChange: "Request Design Adjustment",
+        btnRate: "Submit Feedback & Rating"
+      },
+      hi: {
+        blessing: "॥ श्री गणेशाय नमः ॥",
+        loginTitle: "मूर्ति ऑर्डर ट्रैकिंग",
+        loginSubtitle: "कार्यशाला की रसीद पर दिया गया बुकिंग विवरण दर्ज करें।",
+        lblBooking: "बुकिंग क्रमांक (Booking No.)",
+        lblPhone: "पंजीकृत मोबाइल नंबर",
+        lblPin: "सुरक्षा पिन या पासवर्ड",
+        btnTrack: "ऑर्डर स्थिति देखें",
+        lblDelivery: "संभावित डिलीवरी दिनांक",
+        notesTitle: "विशेष निर्देश:",
+        timelineTitle: "मूर्ति निर्माण प्रगति",
+        paymentTitle: "भुगतान विवरण",
+        totalAmt: "कुल राशि",
+        paidAmt: "अग्रिम / जमा",
+        balanceDue: "शेष राशि",
+        receiptHistory: "रसीद इतिहास",
+        artisan: "मूर्तिकार / कार्यशाला",
+        btnCall: "कार्यशाला में कॉल करें",
+        btnLogout: "लॉगआउट / दूसरा ऑर्डर देखें",
+        btnReqChange: "डिज़ाइन में बदलाव का अनुरोध",
+        btnRate: "समीक्षा और रेटिंग दें"
+      },
+      mr: {
+        blessing: "॥ श्री गणेशाय नमः ॥",
+        loginTitle: "मूर्ती ऑर्डर ट्रॅकिंग",
+        loginSubtitle: "कार्यशाळेच्या पावतीवरील बुकिंग तपशील प्रविष्ट करा.",
+        lblBooking: "बुकिंग क्रमांक (Booking No.)",
+        lblPhone: "नोंदणीकृत मोबाईल नंबर",
+        lblPin: "सुरक्षा पिन किंवा पासवर्ड",
+        btnTrack: "ऑर्डरची स्थिती पहा",
+        lblDelivery: "अपेक्षित वितरण तारीख",
+        notesTitle: "विशेष सूचना:",
+        timelineTitle: "मूर्ती निर्मिती टप्पे",
+        paymentTitle: "पैसे भरणा तपशील",
+        totalAmt: "एकूण रक्कम",
+        paidAmt: "आगाऊ / जमा रक्कम",
+        balanceDue: "शिल्लक रक्कम",
+        receiptHistory: "पावती इतिहास",
+        artisan: "मूर्तिकार / कार्यशाळा",
+        btnCall: "कार्यशाळेस कॉल करा",
+        btnLogout: "लॉगआउट / दुसरी ऑर्डर पहा",
+        btnReqChange: "डिझाईन बदल विनंती",
+        btnRate: "अभिप्राय व रेटिंग द्या"
+      }
+    };
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const dict = I18N[lang];
+      document.getElementById('txtBlessing').innerText = dict.blessing;
+      document.getElementById('txtLoginTitle').innerText = dict.loginTitle;
+      document.getElementById('txtLoginSubtitle').innerText = dict.loginSubtitle;
+      document.getElementById('lblBookingNumber').innerText = dict.lblBooking;
+      document.getElementById('lblPhone').innerText = dict.lblPhone;
+      document.getElementById('lblPin').innerText = dict.lblPin;
+      document.getElementById('txtBtnTrack').innerText = dict.btnTrack;
+      document.getElementById('lblDelivery').innerText = dict.lblDelivery;
+      document.getElementById('lblSpecialNotes').innerText = dict.notesTitle;
+      document.getElementById('txtTimelineTitle').innerText = dict.timelineTitle;
+      document.getElementById('txtPaymentTitle').innerText = dict.paymentTitle;
+      document.getElementById('lblTotalAmount').innerText = dict.totalAmt;
+      document.getElementById('lblPaidAmount').innerText = dict.paidAmt;
+      document.getElementById('lblBalanceDue').innerText = dict.balanceDue;
+      document.getElementById('lblReceiptHistory').innerText = dict.receiptHistory;
+      document.getElementById('lblArtisan').innerText = dict.artisan;
+      document.getElementById('txtBtnCall').innerText = dict.btnCall;
+      document.getElementById('txtBtnLogout').innerText = dict.btnLogout;
+      
+      if (cachedBookingData) {
+        renderTrackingView(cachedBookingData);
+      }
+    }
+
+    async function handleCustomerLogin(e) {
+      e.preventDefault();
+      const booking_number = document.getElementById('inpBookingNo').value.trim();
+      const phone = document.getElementById('inpPhone').value.trim();
+      const credential = document.getElementById('inpPin').value.trim();
+      const alertBox = document.getElementById('loginAlert');
+      alertBox.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/auth/customer/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ booking_number, phone, credential })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || 'Invalid booking number or credentials.');
+        }
+
+        customerToken = data.token;
+        localStorage.setItem('murtitrack_customer_jwt', customerToken);
+        fetchBookingDetails();
+      } catch (err) {
+        alertBox.innerText = err.message;
+        alertBox.style.display = 'block';
+      }
+    }
+
+    async function fetchBookingDetails() {
+      if (!customerToken) return;
+      try {
+        const res = await fetch('/api/customer/booking', {
+          headers: { 'Authorization': `Bearer ${customerToken}` }
+        });
+        if (!res.ok) {
+          logoutCustomer();
+          return;
+        }
+        const data = await res.json();
+        cachedBookingData = data;
+
+        // Check for newly accepted/rejected change requests
+        if (data.change_requests && data.change_requests.length > 0) {
+          const seenStr = localStorage.getItem('murtitrack_seen_crs') || '{}';
+          const seenCrs = JSON.parse(seenStr);
+          let newAlert = false;
+          
+          for (let cr of data.change_requests) {
+            if (cr.status !== 'pending') {
+              if (seenCrs[cr.id] !== cr.status) {
+                // Found a status update we haven't alerted the user about yet
+                alert(`Update: Your change request for '${cr.change_type}' was ${cr.status.toUpperCase()} by the artisan.`);
+                seenCrs[cr.id] = cr.status;
+                newAlert = true;
+              }
+            }
+          }
+          if (newAlert) {
+            localStorage.setItem('murtitrack_seen_crs', JSON.stringify(seenCrs));
+          }
+        }
+
+        renderTrackingView(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function renderTrackingView(data) {
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('orderSection').style.display = 'flex';
+
+      document.getElementById('dispBookingNo').innerText = data.booking_number;
+      document.getElementById('dispIdolDetails').innerText = `${data.size} • ${data.idol_type.toUpperCase()} (${data.material.toUpperCase()})`;
+      document.getElementById('dispCustomerName').innerText = `Booked for: ${data.customer_name}`;
+      document.getElementById('dispDeliveryDate').innerText = data.expected_delivery_date;
+      document.getElementById('dispNotes').innerText = data.notes || 'None specified';
+
+      document.getElementById('dispTotalAmount').innerText = `₹${data.total_amount.toLocaleString('en-IN')}`;
+      document.getElementById('dispPaidAmount').innerText = `₹${data.total_paid.toLocaleString('en-IN')}`;
+      document.getElementById('dispBalanceDue').innerText = `₹${data.balance_due.toLocaleString('en-IN')}`;
+
+      // Murtikar Workshop contact
+      document.getElementById('dispMurtikarShop').innerText = data.shop_name;
+      document.getElementById('dispMurtikarName').innerText = `${data.murtikar_name} • ${data.city}${data.area ? ', ' + data.area : ''}`;
+      document.getElementById('linkCallMurtikar').href = `tel:${data.murtikar_phone}`;
+      
+      const waMsg = encodeURIComponent(`Namaskar ${data.murtikar_name} ji, regarding my idol booking ${data.booking_number} (${data.customer_name}).`);
+      document.getElementById('linkWaMurtikar').href = `https://wa.me/91${data.whatsapp_number || data.murtikar_phone}?text=${waMsg}`;
+
+      // Render Timeline
+      const STAGES = [
+        { key: 'booking_confirmed', en: 'Booking Confirmed', hi: 'बुकिंग पक्की', mr: 'बुकिंग निश्चित' },
+        { key: 'design_approved', en: 'Design Approved', hi: 'डिज़ाइन स्वीकृत', mr: 'डिझाइन मंजूर' },
+        { key: 'base_structure_ready', en: 'Base Structure Ready', hi: 'आधार ढांचा तैयार', mr: 'मूळ रचना तयार' },
+        { key: 'painting_in_progress', en: 'Painting in Progress', hi: 'रंगाई जारी', mr: 'रंगकाम सुरू' },
+        { key: 'ornamentation', en: 'Ornamentation & Shringar', hi: 'आभूषण व श्रृंगार', mr: 'अलंकार व शृंगार' },
+        { key: 'quality_check', en: 'Quality Check Complete', hi: 'गुणवत्ता जांच पूर्ण', mr: 'गुणवत्ता तपासणी' },
+        { key: 'ready_for_pickup', en: 'Ready for Pickup', hi: 'लेने के लिए तैयार', mr: 'नेण्यासाठी तयार' },
+        { key: 'delivered', en: 'Delivered with Blessings', hi: 'शुभ विसर्जन / वितरित', mr: 'वितरित' }
+      ];
+
+      const currentStageIndex = STAGES.findIndex(s => s.key === data.current_status);
+      const activeStageObj = STAGES[currentStageIndex] || STAGES[0];
+      document.getElementById('txtCurrentStatusBadge').innerText = activeStageObj[currentLang] || activeStageObj.en;
+
+      const timelineEl = document.getElementById('timelineList');
+      timelineEl.innerHTML = '';
+
+      STAGES.forEach((stage, idx) => {
+        const isDone = idx < currentStageIndex;
+        const isActive = idx === currentStageIndex;
+        const statusClass = isDone ? 'completed' : (isActive ? 'active' : '');
+
+        // Find update note/timestamp if exists
+        const updateRec = (data.status_history || []).find(h => h.status_stage === stage.key);
+        const dateStr = updateRec ? new Date(updateRec.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '';
+        const noteStr = updateRec && updateRec.note ? updateRec.note : '';
+
+        const item = document.createElement('div');
+        item.className = `step-item ${statusClass}`;
+        item.innerHTML = `
+          <div class="step-node">${isDone ? '✓' : (idx + 1)}</div>
+          <div class="step-title">${stage[currentLang] || stage.en}</div>
+          <div class="step-desc">${noteStr || (isActive ? 'Craftsman currently working on this stage.' : (isDone ? 'Stage successfully completed.' : 'Upcoming stage.'))}</div>
+          ${dateStr ? `<div class="step-date">📅 ${dateStr}</div>` : ''}
+          ${updateRec && updateRec.photo_url ? `<div style="margin-top:8px;"><img src="${updateRec.photo_url}" style="max-width:200px; border-radius:8px; border:1px solid var(--border);"></div>` : ''}
+        `;
+        timelineEl.appendChild(item);
+      });
+
+      // Payments list
+      const payListEl = document.getElementById('paymentsList');
+      payListEl.innerHTML = '';
+      (data.payments || []).forEach(p => {
+        const pItem = document.createElement('div');
+        pItem.style.cssText = 'display:flex; justify-content:space-between; align-items:center; background:var(--surface-elevated); padding:10px 14px; border-radius:10px; font-size:14px;';
+        pItem.innerHTML = `
+          <div>
+            <div style="font-weight:600;">₹${p.amount.toLocaleString('en-IN')} <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">(${p.payment_mode})</span></div>
+            <div style="font-size:12px; color:var(--text-muted);">${p.note || (p.is_advance ? 'Initial Advance' : 'Balance payment')}</div>
+          </div>
+          <div style="font-size:12px; color:var(--text-muted);">${p.payment_date}</div>
+        `;
+        payListEl.appendChild(pItem);
+      });
+    }
+
+    function logoutCustomer() {
+      customerToken = null;
+      cachedBookingData = null;
+      localStorage.removeItem('murtitrack_customer_jwt');
+      document.getElementById('loginSection').style.display = 'block';
+      document.getElementById('orderSection').style.display = 'none';
+    }
+
+    // Modals
+    function openChangeRequestModal() {
+      document.getElementById('changeModal').classList.add('active');
+    }
+    function openRatingModal() {
+      initRatingStars();
+      document.getElementById('ratingModal').classList.add('active');
+    }
+    function closeModals() {
+      document.getElementById('changeModal').classList.remove('active');
+      document.getElementById('ratingModal').classList.remove('active');
+    }
+
+    async function submitChangeRequest() {
+      const change_type = document.getElementById('crType').value;
+      const description = document.getElementById('crDescription').value.trim();
+      const alertBox = document.getElementById('crAlert');
+
+      if (!description || description.length < 5) {
+        alertBox.className = 'alert alert-danger';
+        alertBox.innerText = 'Please provide at least a few words describing the change.';
+        alertBox.style.display = 'block';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/customer/change-requests', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${customerToken}`
+          },
+          body: JSON.stringify({ change_type, description })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Failed to submit change request');
+
+        alertBox.className = 'alert alert-success';
+        alertBox.innerText = 'Adjustment request submitted successfully to the murtikar!';
+        alertBox.style.display = 'block';
+        setTimeout(() => {
+          closeModals();
+          fetchBookingDetails();
+        }, 1500);
+      } catch (err) {
+        alertBox.className = 'alert alert-danger';
+        alertBox.innerText = err.message;
+        alertBox.style.display = 'block';
+      }
+    }
+
+    function initRatingStars() {
+      const container = document.getElementById('starContainer');
+      container.innerHTML = '';
+      for (let i = 1; i <= 10; i++) {
+        const star = document.createElement('span');
+        star.className = `star ${i <= selectedRating ? 'selected' : ''}`;
+        star.innerHTML = '★';
+        star.onclick = () => {
+          selectedRating = i;
+          document.getElementById('starScoreLabel').innerText = `${selectedRating} / 10 - ${selectedRating >= 9 ? 'Outstanding Devotion' : (selectedRating >= 7 ? 'Very Satisfied' : 'Average')}`;
+          initRatingStars();
+        };
+        container.appendChild(star);
+      }
+    }
+
+    async function submitRating() {
+      const note = document.getElementById('inpRatingNote').value.trim();
+      const alertBox = document.getElementById('ratingAlert');
+
+      try {
+        const res = await fetch('/api/customer/ratings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${customerToken}`
+          },
+          body: JSON.stringify({ score: selectedRating, note })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Failed to submit review');
+
+        alertBox.className = 'alert alert-success';
+        alertBox.innerText = 'Your review and blessings have been recorded!';
+        alertBox.style.display = 'block';
+        setTimeout(() => {
+          closeModals();
+          fetchBookingDetails();
+        }, 1500);
+      } catch (err) {
+        alertBox.className = 'alert alert-danger';
+        alertBox.innerText = err.message;
+        alertBox.style.display = 'block';
+      }
+    }
+
+    // Removed auto-login so customers always see the login portal first.
+  </script>
+</body>
+</html>

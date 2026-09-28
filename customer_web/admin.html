@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MurtiTrack — Platform Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #D35400;
+      --gold: #F39C12;
+      --bg: #0C0D14;
+      --surface: #141622;
+      --surface-card: #1C1F30;
+      --border: rgba(255, 255, 255, 0.1);
+      --text: #F8F9FA;
+      --text-muted: #8E95A5;
+      --success: #2ECC71;
+      --danger: #E74C3C;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+    body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+    
+    .nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .brand { font-size: 20px; font-weight: 800; background: linear-gradient(90deg, #F39C12, #E67E22); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 8px; }
+    .nav-badge { background: rgba(211, 84, 0, 0.2); border: 1px solid var(--primary); color: var(--gold); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+
+    .main { max-width: 1200px; width: 100%; margin: 0 auto; padding: 28px 20px; flex: 1; display: flex; flex-direction: column; gap: 24px; }
+    
+    /* Login Box */
+    .login-box { max-width: 440px; margin: 60px auto; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 36px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+    .form-control { width: 100%; background: var(--surface-card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; color: white; font-size: 15px; outline: none; }
+    .form-control:focus { border-color: var(--gold); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), #E67E22); color: white; width: 100%; }
+    .btn-sm { padding: 6px 12px; font-size: 13px; border-radius: 8px; }
+    .btn-success { background: rgba(46, 204, 113, 0.2); color: #2ECC71; border: 1px solid rgba(46, 204, 113, 0.4); }
+    .btn-danger { background: rgba(231, 76, 60, 0.2); color: #E74C3C; border: 1px solid rgba(231, 76, 60, 0.4); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+
+    /* Metrics Grid */
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+    .metric-title { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+    .metric-val { font-size: 28px; font-weight: 800; margin-top: 6px; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .tab-btn { background: none; border: none; color: var(--text-muted); font-size: 15px; font-weight: 600; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+    .tab-btn.active { background: var(--surface-card); color: white; border: 1px solid var(--border); }
+
+    /* Tables */
+    .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { background: var(--surface-card); color: var(--text-muted); padding: 14px 18px; font-weight: 600; border-bottom: 1px solid var(--border); font-size: 12px; text-transform: uppercase; }
+    td { padding: 14px 18px; border-bottom: 1px solid var(--border); color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .badge-pending { background: rgba(241, 196, 15, 0.2); color: #F1C40F; border: 1px solid rgba(241, 196, 15, 0.3); }
+    .badge-approved { background: rgba(46, 204, 113, 0.2); color: #2ECC71; border: 1px solid rgba(46, 204, 113, 0.3); }
+    .badge-blocked { background: rgba(231, 76, 60, 0.2); color: #E74C3C; border: 1px solid rgba(231, 76, 60, 0.3); }
+    
+    .alert { padding: 12px 16px; border-radius: 10px; font-size: 14px; margin-bottom: 16px; display: none; }
+    .alert-danger { background: rgba(231, 76, 60, 0.2); border: 1px solid var(--danger); color: #FF7675; }
+    .alert-success { background: rgba(46, 204, 113, 0.2); border: 1px solid var(--success); color: #55EFC4; }
+  </style>
+</head>
+<body>
+
+  <div class="nav">
+    <div class="brand">
+      <span>🛡️</span>
+      <span>MurtiTrack Admin</span>
+      <span class="nav-badge">Platform Console</span>
+    </div>
+    <div id="navUser" style="display: none; align-items: center; gap: 14px;">
+      <span style="font-size: 14px; color: var(--text-muted);">Admin (9999999999)</span>
+      <button class="btn btn-outline btn-sm" onclick="logoutAdmin()">Logout</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- ADMIN LOGIN -->
+    <div id="adminLoginSection" class="login-box">
+      <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 6px;">Platform Admin Login</h2>
+      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px;">Sign in to verify artisan workshops and monitor platform activity.</p>
+      
+      <div id="adminLoginAlert" class="alert alert-danger"></div>
+
+      <form onsubmit="handleAdminLogin(event)">
+        <div class="form-group">
+          <label>Admin Mobile Number</label>
+          <input type="tel" id="inpAdminPhone" class="form-control" required value="9999999999">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="inpAdminPass" class="form-control" required value="Admin@Murti2026">
+        </div>
+        <button type="submit" class="btn btn-primary" style="margin-top: 8px;">Access Admin Console</button>
+      </form>
+    </div>
+
+    <!-- ADMIN DASHBOARD -->
+    <div id="adminDashboard" style="display: none; flex-direction: column; gap: 24px;">
+      
+      <!-- Metrics Overview -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-title">Total Murtikars</div>
+          <div class="metric-val" id="metricTotalMurtikars">0</div>
+        </div>
+        <div class="metric-card" style="border-color: rgba(241, 196, 15, 0.4);">
+          <div class="metric-title" style="color: #F1C40F;">Pending Verifications</div>
+          <div class="metric-val" style="color: #F1C40F;" id="metricPendingMurtikars">0</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Active Orders</div>
+          <div class="metric-val" id="metricActiveOrders">0</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Delivered Orders</div>
+          <div class="metric-val" style="color: #2ECC71;" id="metricDeliveredOrders">0</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Total Order Value</div>
+          <div class="metric-val" style="color: var(--gold);" id="metricTotalValue">₹0</div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('pending')">Pending Approvals</button>
+        <button class="tab-btn" onclick="switchTab('all')">All Murtikars Directory</button>
+        <button class="tab-btn" onclick="switchTab('audit')">Platform Audit Trail</button>
+      </div>
+
+      <!-- TAB 1: PENDING APPROVALS -->
+      <div id="tabPending" class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Workshop Name</th>
+              <th>Artisan Name</th>
+              <th>Location</th>
+              <th>Mobile</th>
+              <th>Experience</th>
+              <th>Specialties</th>
+              <th>Applied Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="pendingTableBody">
+            <!-- Rendered dynamically -->
+          </tbody>
+        </table>
+        <div id="pendingEmptyMsg" style="padding: 30px; text-align: center; color: var(--text-muted); display: none;">
+          No pending artisan applications. All caught up!
+        </div>
+      </div>
+
+      <!-- TAB 2: ALL MURTIKARS -->
+      <div id="tabAll" class="table-card" style="display: none;">
+        <table>
+          <thead>
+            <tr>
+              <th>Workshop Name</th>
+              <th>Artisan</th>
+              <th>City</th>
+              <th>Mobile</th>
+              <th>Status</th>
+              <th>Registered On</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="allMurtikarsTableBody">
+            <!-- Rendered dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TAB 3: AUDIT LOGS -->
+      <div id="tabAudit" class="table-card" style="display: none;">
+        <table>
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Action</th>
+              <th>Actor Role</th>
+              <th>Target Type</th>
+              <th>Target ID / Details</th>
+            </tr>
+          </thead>
+          <tbody id="auditTableBody">
+            <!-- Rendered dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    let adminToken = localStorage.getItem('murtitrack_admin_jwt');
+
+    async function handleAdminLogin(e) {
+      e.preventDefault();
+      const phone = document.getElementById('inpAdminPhone').value.trim();
+      const password = document.getElementById('inpAdminPass').value.trim();
+      const alertBox = document.getElementById('adminLoginAlert');
+      alertBox.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Login failed');
+
+        if (data.user.role !== 'platform_admin') {
+          throw new Error('This account does not have platform administration privileges.');
+        }
+
+        adminToken = data.token;
+        localStorage.setItem('murtitrack_admin_jwt', adminToken);
+        loadDashboard();
+      } catch (err) {
+        alertBox.innerText = err.message;
+        alertBox.style.display = 'block';
+      }
+    }
+
+    function logoutAdmin() {
+      adminToken = null;
+      localStorage.removeItem('murtitrack_admin_jwt');
+      document.getElementById('adminLoginSection').style.display = 'block';
+      document.getElementById('adminDashboard').style.display = 'none';
+      document.getElementById('navUser').style.display = 'none';
+    }
+
+    async function loadDashboard() {
+      document.getElementById('adminLoginSection').style.display = 'none';
+      document.getElementById('adminDashboard').style.display = 'flex';
+      document.getElementById('navUser').style.display = 'flex';
+
+      loadMetrics();
+      loadPendingMurtikars();
+      loadAllMurtikars();
+      loadAuditLogs();
+    }
+
+    async function loadMetrics() {
+      try {
+        const res = await fetch('/api/admin/metrics', {
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const data = await res.json();
+        document.getElementById('metricTotalMurtikars').innerText = data.total_murtikars;
+        document.getElementById('metricPendingMurtikars').innerText = data.pending_murtikars;
+        document.getElementById('metricActiveOrders').innerText = data.active_bookings;
+        document.getElementById('metricDeliveredOrders').innerText = data.delivered_bookings;
+        document.getElementById('metricTotalValue').innerText = `₹${data.total_order_value.toLocaleString('en-IN')}`;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadPendingMurtikars() {
+      try {
+        const res = await fetch('/api/admin/murtikars/pending', {
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const rows = await res.json();
+        const tbody = document.getElementById('pendingTableBody');
+        tbody.innerHTML = '';
+
+        if (rows.length === 0) {
+          document.getElementById('pendingEmptyMsg').style.display = 'block';
+          return;
+        }
+        document.getElementById('pendingEmptyMsg').style.display = 'none';
+
+        rows.forEach(m => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td style="font-weight:700;">${m.shop_name}</td>
+            <td>${m.name}</td>
+            <td>${m.city}${m.area ? ', ' + m.area : ''}</td>
+            <td>${m.phone}</td>
+            <td>${m.experience_years} yrs</td>
+            <td>${m.idol_types.join(', ')}</td>
+            <td>${new Date(m.created_at).toLocaleDateString()}</td>
+            <td>
+              <div style="display:flex; gap:6px;">
+                <button class="btn btn-sm btn-success" onclick="approveMurtikar('${m.id}')">✓ Approve</button>
+                <button class="btn btn-sm btn-danger" onclick="rejectMurtikar('${m.id}')">✗ Reject</button>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function approveMurtikar(userId) {
+      if (!confirm('Approve this artisan workshop? They will be granted full access to register bookings.')) return;
+      try {
+        const res = await fetch(`/api/admin/murtikars/${userId}/approve`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        if (res.ok) {
+          loadMetrics();
+          loadPendingMurtikars();
+          loadAllMurtikars();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function rejectMurtikar(userId) {
+      const reason = prompt('Please enter rejection reason (will be visible to applicant):');
+      if (reason === null) return;
+      try {
+        const res = await fetch(`/api/admin/murtikars/${userId}/reject`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${adminToken}`
+          },
+          body: JSON.stringify({ reason })
+        });
+        if (res.ok) {
+          loadMetrics();
+          loadPendingMurtikars();
+          loadAllMurtikars();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadAllMurtikars() {
+      try {
+        const res = await fetch('/api/admin/murtikars', {
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const rows = await res.json();
+        const tbody = document.getElementById('allMurtikarsTableBody');
+        tbody.innerHTML = '';
+
+        rows.forEach(m => {
+          const tr = document.createElement('tr');
+          const badgeClass = m.status === 'approved' ? 'badge-approved' : (m.status === 'blocked' ? 'badge-blocked' : 'badge-pending');
+          const isBlocked = m.status === 'blocked';
+          tr.innerHTML = `
+            <td style="font-weight:700;">${m.shop_name}</td>
+            <td>${m.name}</td>
+            <td>${m.city}</td>
+            <td>${m.phone}</td>
+            <td><span class="badge ${badgeClass}">${m.status}</span></td>
+            <td>${new Date(m.created_at).toLocaleDateString()}</td>
+            <td>
+              ${isBlocked ?
+                `<button class="btn btn-sm btn-outline" onclick="unblockMurtikar('${m.id}')">Unblock</button>` :
+                `<button class="btn btn-sm btn-danger" onclick="blockMurtikar('${m.id}')">Block</button>`}
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function blockMurtikar(userId) {
+      if (!confirm('Are you sure you want to suspend this artisan account?')) return;
+      try {
+        await fetch(`/api/admin/murtikars/${userId}/block`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${adminToken}` },
+          body: JSON.stringify({ reason: 'Suspended by admin' })
+        });
+        loadMetrics();
+        loadAllMurtikars();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function unblockMurtikar(userId) {
+      try {
+        await fetch(`/api/admin/murtikars/${userId}/unblock`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        loadMetrics();
+        loadAllMurtikars();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadAuditLogs() {
+      try {
+        const res = await fetch('/api/admin/audit-logs?limit=50', {
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const rows = await res.json();
+        const tbody = document.getElementById('auditTableBody');
+        tbody.innerHTML = '';
+
+        rows.forEach(l => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td style="font-size:12px; color:var(--text-muted);">${new Date(l.created_at).toLocaleString()}</td>
+            <td><code style="color:var(--gold); font-weight:700;">${l.action}</code></td>
+            <td>${l.actor_role || 'system'}</td>
+            <td>${l.target_type || '-'}</td>
+            <td style="font-size:12px; max-width:300px; word-break:break-all;">${l.details || l.target_id || '-'}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+
+      document.getElementById('tabPending').style.display = tab === 'pending' ? 'block' : 'none';
+      document.getElementById('tabAll').style.display = tab === 'all' ? 'block' : 'none';
+      document.getElementById('tabAudit').style.display = tab === 'audit' ? 'block' : 'none';
+    }
+
+    if (adminToken) {
+      loadDashboard();
+    }
+  </script>
+</body>
+</html>
