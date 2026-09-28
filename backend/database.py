@@ -10,13 +10,70 @@ import hashlib
 import json
 from typing import Optional, List, Dict, Any
 
+try:
+    import psycopg2
+    import psycopg2.extras
+except ImportError:
+    psycopg2 = None
+
 DB_PATH = os.environ.get("MURTITRACK_DB_PATH", os.path.join(os.path.dirname(__file__), "murtitrack.db"))
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+
+class PgCursorWrapper:
+    def __init__(self, cursor):
+        self.cursor = cursor
+        
+    def execute(self, query, params=None):
+        query = query.replace("?", "%s")
+        if "INSERT OR REPLACE INTO booking_counters" in query:
+            query = """INSERT INTO booking_counters (murtikar_id, last_number) 
+                       VALUES (%s, %s) 
+                       ON CONFLICT (murtikar_id) DO UPDATE SET last_number = EXCLUDED.last_number"""
+        elif "INSERT OR IGNORE" in query:
+            query = query.replace("INSERT OR IGNORE", "INSERT").replace(")", ") ON CONFLICT DO NOTHING", 1)
+        
+        if "PRAGMA" in query:
+            return self
+            
+        if params is None:
+            self.cursor.execute(query)
+        else:
+            self.cursor.execute(query, params)
+        return self
+            
+    def fetchone(self):
+        return self.cursor.fetchone()
+        
+    def fetchall(self):
+        return self.cursor.fetchall()
+        
+    def executemany(self, query, params_list):
+        query = query.replace("?", "%s")
+        self.cursor.executemany(query, params_list)
+        return self
+
+class PgConnectionWrapper:
+    def __init__(self, conn):
+        self.conn = conn
+        
+    def cursor(self):
+        return PgCursorWrapper(self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor))
+        
+    def commit(self):
+        self.conn.commit()
+        
+    def close(self):
+        self.conn.close()
 
 def get_connection():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON;")
-    return conn
+    if SUPABASE_URL and psycopg2:
+        conn = psycopg2.connect(SUPABASE_URL)
+        return PgConnectionWrapper(conn)
+    else:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA foreign_keys = ON;")
+        return conn
 
 def hash_credential(text: str) -> str:
     """Hashes passwords and PINs with SHA-256 for local portability."""
