@@ -301,6 +301,7 @@
               <div style="display:flex; gap:6px;">
                 <button class="btn btn-sm btn-success" onclick="approveMurtikar('${m.id}')">✓ Approve</button>
                 <button class="btn btn-sm btn-danger" onclick="rejectMurtikar('${m.id}')">✗ Reject</button>
+                <button class="btn btn-sm btn-secondary" style="background-color:#E74C3C; border-color:#E74C3C" onclick="deleteMurtikar('${m.id}')">🗑️ Delete</button>
               </div>
             </td>
           `;
@@ -350,6 +351,25 @@
       }
     }
 
+    async function deleteMurtikar(userId) {
+      if (!confirm('Are you absolutely sure you want to permanently delete this artisan? All their data will be lost.')) return;
+      try {
+        const res = await fetch(`/api/admin/murtikars/${userId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        if (res.ok) {
+          loadMetrics();
+          loadPendingMurtikars();
+          loadAllMurtikars();
+        } else {
+          alert('Failed to delete artisan.');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
     async function loadAllMurtikars() {
       try {
         const res = await fetch('/api/admin/murtikars', {
@@ -371,9 +391,12 @@
             <td><span class="badge ${badgeClass}">${m.status}</span></td>
             <td>${new Date(m.created_at).toLocaleDateString()}</td>
             <td>
-              ${isBlocked ?
-                `<button class="btn btn-sm btn-outline" onclick="unblockMurtikar('${m.id}')">Unblock</button>` :
-                `<button class="btn btn-sm btn-danger" onclick="blockMurtikar('${m.id}')">Block</button>`}
+              <div style="display:flex; gap:6px;">
+                ${isBlocked ?
+                  `<button class="btn btn-sm btn-outline" onclick="unblockMurtikar('${m.id}')">Unblock</button>` :
+                  `<button class="btn btn-sm btn-danger" onclick="blockMurtikar('${m.id}')">Block</button>`}
+                <button class="btn btn-sm btn-secondary" style="background-color:#E74C3C; border-color:#E74C3C" onclick="deleteMurtikar('${m.id}')">🗑️ Delete</button>
+              </div>
             </td>
           `;
           tbody.appendChild(tr);

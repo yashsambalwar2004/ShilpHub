@@ -12,7 +12,7 @@ class ApiService {
   // phone — it points to the phone itself, not your computer.
   // Phone and PC must be on the SAME Wi-Fi network.
   // Backend must be run with: uvicorn main:app --reload --host 0.0.0.0 --port 8000
-  static String baseUrl = 'http://10.201.44.176:8000/api';
+  static String baseUrl = 'https://yashsambalwar2004-github-io.onrender.com/api';
 
   static String? _token;
 
@@ -104,11 +104,10 @@ class ApiService {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(regData),
     );
-    final data = jsonDecode(res.body);
     if (res.statusCode == 200) {
-      return data;
+      return jsonDecode(res.body);
     }
-    throw Exception(data['detail'] ?? 'Registration failed');
+    throw Exception(_errorDetail(res, 'Registration failed'));
   }
 
   /// Customer tracking login: booking number + phone + PIN/password.

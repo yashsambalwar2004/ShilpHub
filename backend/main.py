@@ -539,6 +539,16 @@ def unblock_murtikar(user_id: str, admin: Dict[str, Any] = Depends(auth.require_
     auth.log_audit("murtikar_unblocked", actor_id=admin["id"], actor_role="platform_admin", target_type="user", target_id=user_id)
     return {"success": True, "message": "Murtikar account unblocked."}
 
+@app.delete("/api/admin/murtikars/{user_id}")
+def delete_murtikar(user_id: str, admin: Dict[str, Any] = Depends(auth.require_admin)):
+    conn = database.get_connection()
+    c = conn.cursor()
+    c.execute("DELETE FROM users WHERE id = ? AND role = 'murtikar'", (user_id,))
+    conn.commit()
+    conn.close()
+    auth.log_audit("murtikar_deleted", actor_id=admin["id"], actor_role="platform_admin", target_type="user", target_id=user_id)
+    return {"success": True, "message": "Murtikar account permanently deleted."}
+
 @app.get("/api/admin/metrics")
 def get_admin_metrics(admin: Dict[str, Any] = Depends(auth.require_admin)):
     conn = database.get_connection()

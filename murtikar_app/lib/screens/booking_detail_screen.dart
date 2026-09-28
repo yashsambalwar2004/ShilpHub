@@ -279,6 +279,37 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
     );
   }
 
+  void _showDeleteConfirmation() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E2E),
+        title: const Text('Delete Booking', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+        content: const Text(
+          'Are you sure you want to delete this booking? This action cannot be undone.',
+          style: TextStyle(color: Colors.white),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel', style: TextStyle(color: Colors.grey))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+            onPressed: () async {
+              try {
+                await ApiService.deleteBooking(widget.bookingId);
+                if (!ctx.mounted) return;
+                Navigator.pop(ctx); // Close dialog
+                Navigator.pop(context, true); // Return true to Dashboard to refresh
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+              }
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -322,7 +353,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
               final phones = (_booking?['authorized_phones'] as List<dynamic>?) ?? [];
               String phone = phones.isNotEmpty ? phones[0]['phone_number'] : '';
               final apiUri = Uri.parse(ApiService.baseUrl);
-              final trackingLink = "http://${apiUri.host}:8000/tracking"; // Uses actual network IP
+              final trackingLink = apiUri.hasPort && apiUri.port != 80 && apiUri.port != 443
+                  ? "${apiUri.scheme}://${apiUri.host}:${apiUri.port}/tracking"
+                  : "${apiUri.scheme}://${apiUri.host}/tracking";
               final msg = "Namaskar! 🙏 Your idol booking ($bookingNo) is confirmed. You can track your idol's progress here: $trackingLink \n(Use PIN: 1234 or type your custom PIN here)";
               
               final urlStr = phone.isNotEmpty 
@@ -341,6 +374,11 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                 if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not open WhatsApp: $e')));
               }
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+            tooltip: 'Delete Booking',
+            onPressed: _showDeleteConfirmation,
           ),
         ],
         bottom: TabBar(
