@@ -371,15 +371,21 @@
     }
 
     async function resetMurtikarPassword(userId) {
-      if (!confirm('Are you sure you want to reset this artisan\'s password to the default?')) return;
+      const newPass = prompt("Enter the new temporary password for this artisan (or leave blank to use 'ShilpHub123'):", "");
+      if (newPass === null) return; // User cancelled
+      
       try {
         const res = await fetch(`/api/admin/murtikars/${userId}/reset-password`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${adminToken}` }
+          headers: { 
+            'Authorization': `Bearer ${adminToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ new_password: newPass })
         });
         const data = await res.json();
         if (res.ok) {
-          alert('Password successfully reset! New Password: ShilpHub123');
+          alert(`Password successfully reset! Ensure you tell the artisan their new password.`);
         } else {
           alert(data.detail || 'Failed to reset password.');
         }

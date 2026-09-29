@@ -564,8 +564,11 @@ def unblock_murtikar(user_id: str, admin: Dict[str, Any] = Depends(auth.require_
     auth.log_audit("murtikar_unblocked", actor_id=admin["id"], actor_role="platform_admin", target_type="user", target_id=user_id)
     return {"success": True, "message": "Murtikar account unblocked."}
 
+class AdminResetPasswordRequest(BaseModel):
+    new_password: str
+
 @app.post("/api/admin/murtikars/{user_id}/reset-password")
-def admin_reset_password(user_id: str, admin: Dict[str, Any] = Depends(auth.require_admin)):
+def admin_reset_password(user_id: str, req: AdminResetPasswordRequest, admin: Dict[str, Any] = Depends(auth.require_admin)):
     conn = database.get_connection()
     c = conn.cursor()
     c.execute("SELECT id FROM users WHERE id = ? AND role = 'murtikar'", (user_id,))
@@ -573,8 +576,10 @@ def admin_reset_password(user_id: str, admin: Dict[str, Any] = Depends(auth.requ
         conn.close()
         raise HTTPException(status_code=404, detail="Murtikar not found.")
         
-    # Set default password
-    new_pass = "ShilpHub123"
+    new_pass = req.new_password.strip()
+    if not new_pass:
+        new_pass = "ShilpHub123"
+        
     new_hash = database.hash_credential(new_pass)
     now = datetime.datetime.now(datetime.timezone.utc).isoformat()
     
