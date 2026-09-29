@@ -1625,6 +1625,48 @@ def send_support_message(
     finally:
         conn.close()
 
+@app.get("/api/test-push")
+def test_push():
+    import push_service
+    conn = database.get_connection()
+    try:
+        c = conn.cursor()
+        c.execute("SELECT fcm_token, user_identifier FROM device_tokens")
+        rows = c.fetchall()
+        tokens = [r["fcm_token"] for r in rows]
+        if not tokens:
+            return {"status": "error", "message": "No tokens found in database. The app has not successfully saved its FCM token."}
+        
+        # Test initialization
+        is_ready = push_service.init_push()
+        if not is_ready:
+            return {"status": "error", "message": "Firebase Admin failed to initialize. Check FIREBASE_SERVICE_ACCOUNT_JSON."}
+
+        # Send test message
+        try:
+            from firebase_admin import messaging
+            messages = [
+                messaging.Message(
+                    token=t,
+                    notification=messaging.Notification(title="Test Push", body="If you see this, push works!"),
+                    data={"type": "test"},
+                ) for t in tokens
+            ]
+            resp = messaging.send_each(messages)
+            
+            results = []
+            for token, r in zip(tokens, resp.responses):
+                if r.success:
+                    results.append({"token": token[:10] + "...", "status": "success"})
+                else:
+                    results.append({"token": token[:10] + "...", "status": "failed", "error": str(r.exception)})
+            
+            return {"status": "success", "total_tokens": len(tokens), "results": results}
+        except Exception as e:
+            return {"status": "error", "message": f"Exception during send_each: {str(e)}"}
+    finally:
+        conn.close()
+
 # ----------------------------------------------------------------------------
 # 11. FESTIVALS & DEFAULT STAGES (Public)
 # ----------------------------------------------------------------------------
