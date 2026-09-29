@@ -101,7 +101,7 @@ class ApiService {
   static Future<void> changePassword(String oldPassword, String newPassword) async {
     final res = await http.post(
       Uri.parse('$baseUrl/murtikars/change-password'),
-      headers: await _getHeaders(),
+      headers: _headers(),
       body: jsonEncode({'old_password': oldPassword, 'new_password': newPassword}),
     );
     if (res.statusCode != 200) {
