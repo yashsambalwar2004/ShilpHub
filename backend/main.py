@@ -594,11 +594,28 @@ def admin_reset_password(user_id: str, req: AdminResetPasswordRequest, admin: Di
 def delete_murtikar(user_id: str, admin: Dict[str, Any] = Depends(auth.require_admin)):
     conn = database.get_connection()
     c = conn.cursor()
-    c.execute("DELETE FROM users WHERE id = ? AND role = 'murtikar'", (user_id,))
+    
+    # Fetch phone to clean up orphaned records
+    c.execute("SELECT phone FROM users WHERE id = ? AND role = 'murtikar'", (user_id,))
+    user = c.fetchone()
+    if not user:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Murtikar not found.")
+        
+    phone = user["phone"]
+    
+    # Explicitly clear orphaned data not covered by foreign keys
+    c.execute("DELETE FROM device_tokens WHERE user_identifier = ? OR user_identifier = ?", (user_id, phone))
+    c.execute("DELETE FROM login_attempts WHERE phone = ?", (phone,))
+    c.execute("DELETE FROM booking_counters WHERE murtikar_id = ?", (user_id,))
+    
+    # Delete the user (ON DELETE CASCADE will handle bookings, etc.)
+    c.execute("DELETE FROM users WHERE id = ?", (user_id,))
     conn.commit()
     conn.close()
-    auth.log_audit("murtikar_deleted", actor_id=admin["id"], actor_role="platform_admin", target_type="user", target_id=user_id)
-    return {"success": True, "message": "Murtikar account permanently deleted."}
+    
+    auth.log_audit("murtikar_deleted", actor_id=admin["id"], actor_role="platform_admin", target_type="user", target_id=user_id, details={"phone": phone})
+    return {"success": True, "message": "Murtikar account and all related data permanently deleted."}
 
 @app.get("/api/admin/metrics")
 def get_admin_metrics(admin: Dict[str, Any] = Depends(auth.require_admin)):
