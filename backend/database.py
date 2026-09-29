@@ -409,38 +409,43 @@ def init_db():
         """, (murtikar_pass, now, now))
 
         # Seed sample booking
-        booking_id = "book-001"
-        c.execute("""
-        INSERT INTO bookings (id, booking_number, murtikar_id, customer_name, customer_phone, festival, idol_type, size, material, total_amount, advance_amount, advance_received_date, advance_mode, advance_note, current_status, expected_delivery_date, notes, created_at, updated_at)
-        VALUES (?, 'MUR-2026-00001', 'murtikar-001', 'Anand Deshmukh (Sarvajanik Mandal)', '9850123456', 'ganesh_utsav_2026', 'ganesha', '8 feet (Lalbaugcha Raja Style)', 'clay', 45000.0, 15000.0, '2026-06-15', 'upi', 'Google Pay Ref: UPI/9382103810', 'painting_in_progress', '2026-09-12', 'Traditional saffron pitambar, gold mukut with pearl border.', ?, ?)
-        """, (booking_id, now, now))
+        c.execute("SELECT COUNT(*) FROM bookings WHERE booking_number = 'MUR-2026-00001'")
+        if c.fetchone()[0] == 0:
+            booking_id = "book-001"
+            c.execute("""
+            INSERT INTO bookings (id, booking_number, murtikar_id, customer_name, customer_phone, festival, idol_type, size, material, total_amount, advance_amount, advance_received_date, advance_mode, advance_note, current_status, expected_delivery_date, notes, created_at, updated_at)
+            VALUES (?, 'MUR-2026-00001', 'murtikar-001', 'Anand Deshmukh (Sarvajanik Mandal)', '9850123456', 'ganesh_utsav_2026', 'ganesha', '8 feet (Lalbaugcha Raja Style)', 'clay', 45000.0, 15000.0, '2026-06-15', 'upi', 'Google Pay Ref: UPI/9382103810', 'painting_in_progress', '2026-09-12', 'Traditional saffron pitambar, gold mukut with pearl border.', ?, ?)
+            """, (booking_id, now, now))
 
-        # Set booking counter
-        c.execute("INSERT OR REPLACE INTO booking_counters VALUES ('murtikar-001', 1)")
+            # Set booking counter
+            if SUPABASE_URL and psycopg2:
+                c.execute("INSERT INTO booking_counters (murtikar_id, last_number) VALUES ('murtikar-001', 1) ON CONFLICT (murtikar_id) DO UPDATE SET last_number = 1")
+            else:
+                c.execute("INSERT OR REPLACE INTO booking_counters VALUES ('murtikar-001', 1)")
 
-        # Seed advance payment in payments table
-        c.execute("""
-        INSERT INTO payments (id, booking_id, amount, payment_date, payment_mode, note, is_advance, created_at, updated_at)
-        VALUES ('pay-001', ?, 15000.0, '2026-06-15', 'upi', 'Google Pay Ref: UPI/9382103810', 1, ?, ?)
-        """, (booking_id, now, now))
+            # Seed advance payment in payments table
+            c.execute("""
+            INSERT INTO payments (id, booking_id, amount, payment_date, payment_mode, note, is_advance, created_at, updated_at)
+            VALUES ('pay-001', ?, 15000.0, '2026-06-15', 'upi', 'Google Pay Ref: UPI/9382103810', 1, ?, ?)
+            """, (booking_id, now, now))
 
-        # Seed authorized customer phone (PIN: 1234)
-        pin_hash = hash_credential("1234")
-        c.execute("""
-        INSERT INTO booking_authorized_phones (id, booking_id, phone_number, label, auth_type, pin_hash, is_primary, is_blocked, created_at, updated_at)
-        VALUES ('auth-001', ?, '9850123456', 'buyer', 'pin', ?, 1, 0, ?, ?)
-        """, (booking_id, pin_hash, now, now))
+            # Seed authorized customer phone (PIN: 1234)
+            pin_hash = hash_credential("1234")
+            c.execute("""
+            INSERT INTO booking_authorized_phones (id, booking_id, phone_number, label, auth_type, pin_hash, is_primary, is_blocked, created_at, updated_at)
+            VALUES ('auth-001', ?, '9850123456', 'buyer', 'pin', ?, 1, 0, ?, ?)
+            """, (booking_id, pin_hash, now, now))
 
-        # Seed status history
-        past_30 = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=30)).isoformat()
-        past_20 = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=20)).isoformat()
-        past_10 = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=10)).isoformat()
-        past_2 = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=2)).isoformat()
+            # Seed status history
+            past_30 = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=30)).isoformat()
+            past_20 = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=20)).isoformat()
+            past_10 = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=10)).isoformat()
+            past_2 = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=2)).isoformat()
 
-        c.execute("INSERT INTO status_updates VALUES ('su-1', ?, 'booking_confirmed', 'Order booked with token advance received.', NULL, ?)", (booking_id, past_30))
-        c.execute("INSERT INTO status_updates VALUES ('su-2', ?, 'design_approved', 'Sketch & pose finalized with Mandal trustees.', NULL, ?)", (booking_id, past_20))
-        c.execute("INSERT INTO status_updates VALUES ('su-3', ?, 'base_structure_ready', 'Eco-friendly clay sculpting completed.', NULL, ?)", (booking_id, past_10))
-        c.execute("INSERT INTO status_updates VALUES ('su-4', ?, 'painting_in_progress', 'First layer natural color shading ongoing.', NULL, ?)", (booking_id, past_2))
+            c.execute("INSERT INTO status_updates VALUES ('su-1', ?, 'booking_confirmed', 'Order booked with token advance received.', NULL, ?)", (booking_id, past_30))
+            c.execute("INSERT INTO status_updates VALUES ('su-2', ?, 'design_approved', 'Sketch & pose finalized with Mandal trustees.', NULL, ?)", (booking_id, past_20))
+            c.execute("INSERT INTO status_updates VALUES ('su-3', ?, 'base_structure_ready', 'Eco-friendly clay sculpting completed.', NULL, ?)", (booking_id, past_10))
+            c.execute("INSERT INTO status_updates VALUES ('su-4', ?, 'painting_in_progress', 'First layer natural color shading ongoing.', NULL, ?)", (booking_id, past_2))
 
     conn.commit()
     conn.close()
