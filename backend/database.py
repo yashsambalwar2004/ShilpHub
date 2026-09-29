@@ -67,7 +67,8 @@ class PgConnectionWrapper:
 
 def get_connection():
     if SUPABASE_URL and psycopg2:
-        conn = psycopg2.connect(SUPABASE_URL)
+        clean_url = SUPABASE_URL.split("?")[0] if "?" in SUPABASE_URL else SUPABASE_URL
+        conn = psycopg2.connect(clean_url)
         return PgConnectionWrapper(conn)
     else:
         conn = sqlite3.connect(DB_PATH)
