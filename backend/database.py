@@ -26,9 +26,13 @@ class PgCursorWrapper:
     def execute(self, query, params=None):
         query = query.replace("?", "%s")
         if "INSERT OR REPLACE INTO booking_counters" in query:
-            query = """INSERT INTO booking_counters (murtikar_id, last_number) 
-                       VALUES (%s, %s) 
-                       ON CONFLICT (murtikar_id) DO UPDATE SET last_number = EXCLUDED.last_number"""
+            if params is None:
+                query = query.replace("INSERT OR REPLACE INTO booking_counters VALUES", "INSERT INTO booking_counters (murtikar_id, last_number) VALUES")
+                query += " ON CONFLICT (murtikar_id) DO UPDATE SET last_number = EXCLUDED.last_number"
+            else:
+                query = """INSERT INTO booking_counters (murtikar_id, last_number) 
+                           VALUES (%s, %s) 
+                           ON CONFLICT (murtikar_id) DO UPDATE SET last_number = EXCLUDED.last_number"""
         elif "INSERT OR IGNORE" in query:
             query = query.replace("INSERT OR IGNORE", "INSERT").replace(")", ") ON CONFLICT DO NOTHING", 1)
         
