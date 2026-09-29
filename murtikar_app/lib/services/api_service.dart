@@ -12,7 +12,7 @@ class ApiService {
   // phone — it points to the phone itself, not your computer.
   // Phone and PC must be on the SAME Wi-Fi network.
   // Backend must be run with: uvicorn main:app --reload --host 0.0.0.0 --port 8000
-  static String baseUrl = 'https://yashsambalwar2004-github-io.onrender.com/api';
+  static String baseUrl = 'https://shilphub.onrender.com/api';
 
   static String? _token;
 
@@ -96,6 +96,17 @@ class ApiService {
       return data;
     }
     throw Exception(data['detail'] ?? 'Login failed');
+  }
+
+  static Future<void> changePassword(String oldPassword, String newPassword) async {
+    final res = await http.post(
+      Uri.parse('$baseUrl/murtikars/change-password'),
+      headers: await _getHeaders(),
+      body: jsonEncode({'old_password': oldPassword, 'new_password': newPassword}),
+    );
+    if (res.statusCode != 200) {
+      throw Exception(_errorDetail(res, 'Failed to change password'));
+    }
   }
 
   static Future<Map<String, dynamic>> register(Map<String, dynamic> regData) async {

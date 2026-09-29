@@ -151,6 +151,10 @@ class MessageCreate(BaseModel):
 class DeviceTokenRequest(BaseModel):
     fcm_token: str
 
+class ChangePasswordRequest(BaseModel):
+    old_password: str
+    new_password: str
+
 class AdminReviewRequest(BaseModel):
     reason: Optional[str] = None
 
@@ -268,6 +272,27 @@ def login_murtikar_or_admin(req: LoginRequest, request: Request):
             "status": user["status"]
         }
     }
+
+@app.post("/api/murtikars/change-password")
+def change_password(req: ChangePasswordRequest, current_user: dict = Depends(auth.get_current_user)):
+    """Allows a logged-in user to change their password."""
+    conn = database.get_connection()
+    c = conn.cursor()
+    c.execute("SELECT password_hash FROM users WHERE id = ?", (current_user["id"],))
+    user = c.fetchone()
+    
+    if not user or not database.verify_credential(req.old_password, user["password_hash"]):
+        conn.close()
+        raise HTTPException(status_code=400, detail="Incorrect old password.")
+        
+    new_hash = database.hash_credential(req.new_password)
+    now = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    
+    c.execute("UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?", (new_hash, now, current_user["id"]))
+    conn.commit()
+    conn.close()
+    
+    return {"success": True, "message": "Password updated successfully."}
 
 @app.post("/api/auth/customer/login")
 def login_customer(req: CustomerLoginRequest, request: Request):

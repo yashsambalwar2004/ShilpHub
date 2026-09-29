@@ -76,6 +76,64 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  void _showChangePasswordDialog() {
+    final oldController = TextEditingController();
+    final newController = TextEditingController();
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              title: const Text('Change Password'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: oldController,
+                    obscureText: true,
+                    decoration: const InputDecoration(labelText: 'Old Password', border: OutlineInputBorder()),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: newController,
+                    obscureText: true,
+                    decoration: const InputDecoration(labelText: 'New Password', border: OutlineInputBorder()),
+                  ),
+                ],
+              ),
+              actions: [
+                if (!isLoading)
+                  TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                isLoading
+                    ? const CircularProgressIndicator()
+                    : ElevatedButton(
+                        onPressed: () async {
+                          if (oldController.text.trim().isEmpty || newController.text.trim().isEmpty) return;
+                          setStateDialog(() => isLoading = true);
+                          try {
+                            await ApiService.changePassword(oldController.text.trim(), newController.text.trim());
+                            if (!mounted) return;
+                            Navigator.pop(ctx);
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password changed successfully!'), backgroundColor: Colors.green));
+                          } catch (e) {
+                            setStateDialog(() => isLoading = false);
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: Colors.red));
+                          }
+                        },
+                        child: const Text('Submit'),
+                      ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bookings = (_bookingData['bookings'] as List<dynamic>?) ?? [];
@@ -169,6 +227,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const WorkshopBlocklistScreen()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.lock, color: Colors.blueAccent),
+              title: Text('Change Password', style: TextStyle(color: theme.colorScheme.onSurface)),
+              onTap: () {
+                Navigator.pop(context);
+                _showChangePasswordDialog();
               },
             ),
             Divider(color: isDark ? Colors.white24 : Colors.black12),
