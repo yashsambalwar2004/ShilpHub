@@ -279,6 +279,56 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
     );
   }
 
+  void _showChangeRequestResponseDialog(String crId, String actionStatus) {
+    final noteCtrl = TextEditingController(text: actionStatus == 'accepted' ? 'Adjustment accepted by workshop' : 'Cannot be altered at this stage');
+    final chargeCtrl = TextEditingController(text: '0');
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E2E),
+        title: Text(actionStatus == 'accepted' ? 'Accept Request' : 'Reject Request', style: TextStyle(color: actionStatus == 'accepted' ? Colors.green : Colors.redAccent, fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: noteCtrl,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(labelText: 'Response Note', labelStyle: TextStyle(color: Colors.grey)),
+            ),
+            if (actionStatus == 'accepted') ...[
+              const SizedBox(height: 12),
+              TextField(
+                controller: chargeCtrl,
+                style: const TextStyle(color: Colors.white),
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Extra Charge (₹)', labelStyle: TextStyle(color: Colors.grey)),
+              ),
+            ]
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel', style: TextStyle(color: Colors.grey))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: actionStatus == 'accepted' ? Colors.green : Colors.redAccent),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              final charge = double.tryParse(chargeCtrl.text) ?? 0.0;
+              try {
+                await ApiService.respondToChangeRequest(widget.bookingId, crId, actionStatus, noteCtrl.text, charge);
+                _loadDetails();
+              } catch (e) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+              }
+            },
+            child: const Text('Submit', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showDeleteConfirmation() {
     showDialog(
       context: context,
@@ -694,24 +744,18 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                                 children: [
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                                    onPressed: () async {
-                                      await ApiService.respondToChangeRequest(widget.bookingId, cr['id'], 'accepted', 'Adjustment accepted by workshop', 0);
-                                      _loadDetails();
-                                    },
+                                    onPressed: () => _showChangeRequestResponseDialog(cr['id'], 'accepted'),
                                     child: const Text('Accept', style: TextStyle(color: Colors.white)),
                                   ),
                                   const SizedBox(width: 8),
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                                    onPressed: () async {
-                                      await ApiService.respondToChangeRequest(widget.bookingId, cr['id'], 'rejected', 'Cannot be altered at this stage', 0);
-                                      _loadDetails();
-                                    },
+                                    onPressed: () => _showChangeRequestResponseDialog(cr['id'], 'rejected'),
                                     child: const Text('Reject', style: TextStyle(color: Colors.white)),
                                   ),
                                 ],
                               ),
-                            ]
+                            ],
                           ],
                         ),
                       ),

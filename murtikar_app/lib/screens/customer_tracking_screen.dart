@@ -358,14 +358,6 @@ class _CustomerTrackingScreenState extends State<CustomerTrackingScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => SupportChatScreen(bookingId: bookingId, isCustomer: true)));
-        },
-        backgroundColor: theme.primaryColor,
-        icon: const Icon(Icons.support_agent, color: Colors.white),
-        label: const Text('Support', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-      ),
     );
   }
 }

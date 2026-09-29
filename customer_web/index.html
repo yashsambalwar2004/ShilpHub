@@ -202,8 +202,11 @@
           <button class="btn btn-outline" style="flex: 1;" onclick="openChangeRequestModal()" id="btnReqChange">
             <span>✏️</span> <span>Request Design Adjustment</span>
           </button>
-          <button class="btn btn-primary" style="flex: 1;" id="btnRateBlessing" onclick="openRatingModal()">
-            <span>⭐</span> <span>Submit Feedback & Rating</span>
+          <button class="btn btn-outline" style="flex: 1;" onclick="openChatModal()">
+            <span>💬</span> <span>Chat with Artisan</span>
+          </button>
+          <button class="btn btn-primary" style="flex: 1; background: var(--gold); color: #111;" id="btnRateBlessing" onclick="openRatingModal()">
+            <span>⭐</span> <span>Submit Feedback</span>
           </button>
         </div>
       </div>
@@ -328,6 +331,25 @@
       <div style="display: flex; gap: 10px; margin-top: 20px;">
         <button class="btn btn-outline" style="flex: 1;" onclick="closeModals()">Close</button>
         <button class="btn btn-primary" style="flex: 2;" onclick="submitRating()">Submit Review</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CHAT -->
+  <div id="chatModal" class="modal-overlay">
+    <div class="modal-content" style="display: flex; flex-direction: column; height: 80vh; max-height: 600px; padding: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px;">
+        <h3 style="font-size: 18px; font-weight: 800; margin: 0;">Support Chat</h3>
+        <button onclick="closeModals()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 20px;">✕</button>
+      </div>
+      
+      <div id="chatMessages" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 10px; margin-bottom: 12px;">
+        <!-- Populated dynamically -->
+      </div>
+      
+      <div style="display: flex; gap: 8px;">
+        <input type="text" id="inpChatMsg" class="form-control" placeholder="Type your message..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
+        <button class="btn btn-primary" style="width: auto; padding: 0 20px;" onclick="sendChatMessage()">Send</button>
       </div>
     </div>
   </div>
@@ -637,6 +659,8 @@
     }
 
     // Modals
+    let chatInterval = null;
+
     function openChangeRequestModal() {
       document.getElementById('changeModal').classList.add('active');
     }
@@ -644,9 +668,56 @@
       initRatingStars();
       document.getElementById('ratingModal').classList.add('active');
     }
+    function openChatModal() {
+      document.getElementById('chatModal').classList.add('active');
+      loadChatMessages();
+      chatInterval = setInterval(loadChatMessages, 5000);
+    }
     function closeModals() {
       document.getElementById('changeModal').classList.remove('active');
       document.getElementById('ratingModal').classList.remove('active');
+      document.getElementById('chatModal').classList.remove('active');
+      if (chatInterval) clearInterval(chatInterval);
+    }
+
+    async function loadChatMessages() {
+      if (!cachedBookingData) return;
+      try {
+        const res = await fetch(`/api/bookings/${cachedBookingData.id}/messages`, {
+          headers: { 'Authorization': `Bearer ${customerToken}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          const chatEl = document.getElementById('chatMessages');
+          chatEl.innerHTML = '';
+          data.messages.forEach(m => {
+            const isCust = m.sender_type === 'customer';
+            const bubble = document.createElement('div');
+            bubble.style.cssText = `max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 14px; align-self: ${isCust ? 'flex-end' : 'flex-start'}; background: ${isCust ? 'var(--primary)' : 'var(--surface-elevated)'}; color: ${isCust ? 'white' : 'var(--text)'};`;
+            bubble.innerText = m.content;
+            chatEl.appendChild(bubble);
+          });
+          chatEl.scrollTop = chatEl.scrollHeight;
+        }
+      } catch(e) {}
+    }
+
+    async function sendChatMessage() {
+      const inp = document.getElementById('inpChatMsg');
+      const content = inp.value.trim();
+      if (!content || !cachedBookingData) return;
+      
+      inp.value = '';
+      try {
+        await fetch(`/api/bookings/${cachedBookingData.id}/messages`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${customerToken}` },
+          body: JSON.stringify({ content })
+        });
+        loadChatMessages();
+      } catch(e) {
+        alert('Failed to send message');
+      }
     }
 
     async function submitChangeRequest() {
