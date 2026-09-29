@@ -384,15 +384,19 @@ def init_db():
         ]
         c.executemany("INSERT INTO default_stages VALUES (?,?,?,?,?,?,?)", stages)
 
-    # Seed Admin User (Phone: 9999999999, Password: Admin@Murti2026)
+    # Seed or Update Admin User
+    admin_phone = os.environ.get("ADMIN_PHONE", "9999999999")
+    admin_pass = hash_credential(os.environ.get("ADMIN_PASSWORD", "Admin@Murti2026"))
+    
     c.execute("SELECT COUNT(*) FROM users WHERE role = 'platform_admin'")
     if c.fetchone()[0] == 0:
         now = datetime.datetime.now(datetime.timezone.utc).isoformat()
-        admin_pass = hash_credential("Admin@Murti2026")
         c.execute("""
         INSERT INTO users (id, name, shop_name, city, area, phone, whatsapp_number, idol_types, experience_years, status, role, password_hash, created_at, updated_at)
-        VALUES ('admin-001', 'MurtiTrack Platform Admin', 'MurtiTrack HQ', 'Mumbai', 'Dadar', '9999999999', '9999999999', '["ganesha","durga"]', 15, 'approved', 'platform_admin', ?, ?, ?)
-        """, (admin_pass, now, now))
+        VALUES ('admin-001', 'MurtiTrack Platform Admin', 'MurtiTrack HQ', 'Mumbai', 'Dadar', ?, ?, '["ganesha","durga"]', 15, 'approved', 'platform_admin', ?, ?, ?)
+        """, (admin_phone, admin_phone, admin_pass, now, now))
+    else:
+        c.execute("UPDATE users SET phone = ?, whatsapp_number = ?, password_hash = ? WHERE role = 'platform_admin'", (admin_phone, admin_phone, admin_pass))
 
     # Seed Sample Murtikar (Phone: 9823012345, Password: Murtikar@123)
     c.execute("SELECT COUNT(*) FROM users WHERE phone = '9823012345'")
