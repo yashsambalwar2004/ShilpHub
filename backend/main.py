@@ -564,6 +564,27 @@ def unblock_murtikar(user_id: str, admin: Dict[str, Any] = Depends(auth.require_
     auth.log_audit("murtikar_unblocked", actor_id=admin["id"], actor_role="platform_admin", target_type="user", target_id=user_id)
     return {"success": True, "message": "Murtikar account unblocked."}
 
+@app.post("/api/admin/murtikars/{user_id}/reset-password")
+def admin_reset_password(user_id: str, admin: Dict[str, Any] = Depends(auth.require_admin)):
+    conn = database.get_connection()
+    c = conn.cursor()
+    c.execute("SELECT id FROM users WHERE id = ? AND role = 'murtikar'", (user_id,))
+    if not c.fetchone():
+        conn.close()
+        raise HTTPException(status_code=404, detail="Murtikar not found.")
+        
+    # Set default password
+    new_pass = "ShilpHub123"
+    new_hash = database.hash_credential(new_pass)
+    now = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    
+    c.execute("UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?", (new_hash, now, user_id))
+    conn.commit()
+    conn.close()
+    
+    auth.log_audit("murtikar_password_reset", actor_id=admin["id"], actor_role="platform_admin", target_type="user", target_id=user_id)
+    return {"success": True, "message": f"Password reset to '{new_pass}' successfully."}
+
 @app.delete("/api/admin/murtikars/{user_id}")
 def delete_murtikar(user_id: str, admin: Dict[str, Any] = Depends(auth.require_admin)):
     conn = database.get_connection()

@@ -370,6 +370,24 @@
       }
     }
 
+    async function resetMurtikarPassword(userId) {
+      if (!confirm('Are you sure you want to reset this artisan\'s password to the default?')) return;
+      try {
+        const res = await fetch(`/api/admin/murtikars/${userId}/reset-password`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert('Password successfully reset! New Password: ShilpHub123');
+        } else {
+          alert(data.detail || 'Failed to reset password.');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
     async function loadAllMurtikars() {
       try {
         const res = await fetch('/api/admin/murtikars', {
@@ -395,6 +413,7 @@
                 ${isBlocked ?
                   `<button class="btn btn-sm btn-outline" onclick="unblockMurtikar('${m.id}')">Unblock</button>` :
                   `<button class="btn btn-sm btn-danger" onclick="blockMurtikar('${m.id}')">Block</button>`}
+                <button class="btn btn-sm btn-secondary" style="background-color:#F39C12; border-color:#F39C12" onclick="resetMurtikarPassword('${m.id}')">🔑 Reset Pass</button>
                 <button class="btn btn-sm btn-secondary" style="background-color:#E74C3C; border-color:#E74C3C" onclick="deleteMurtikar('${m.id}')">🗑️ Delete</button>
               </div>
             </td>
