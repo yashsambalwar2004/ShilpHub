@@ -42,9 +42,24 @@ def init_push() -> bool:
             _warned = True
         return False
 
-    if not os.path.exists(KEY_PATH):
+    cred = None
+    env_json = os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON")
+    
+    if env_json:
+        try:
+            import json
+            cred_dict = json.loads(env_json)
+            cred = credentials.Certificate(cred_dict)
+        except Exception as e:
+            if not _warned:
+                print(f"[push] Failed to parse FIREBASE_SERVICE_ACCOUNT_JSON: {e}")
+                _warned = True
+            return False
+    elif os.path.exists(KEY_PATH):
+        cred = credentials.Certificate(KEY_PATH)
+    else:
         if not _warned:
-            print(f"[push] Key file not found: {KEY_PATH} (push notifications disabled)")
+            print(f"[push] Key file not found: {KEY_PATH} and FIREBASE_SERVICE_ACCOUNT_JSON is not set. Push disabled.")
             _warned = True
         return False
 
@@ -52,7 +67,7 @@ def init_push() -> bool:
         try:
             firebase_admin.get_app()
         except ValueError:
-            firebase_admin.initialize_app(credentials.Certificate(KEY_PATH))
+            firebase_admin.initialize_app(cred)
         _ready = True
         print("[push] Firebase Admin initialized")
         return True
