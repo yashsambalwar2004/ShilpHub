@@ -1049,6 +1049,21 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                             ),
                             const SizedBox(height: 8),
                             Text(cr['description'] ?? '', style: TextStyle(color: theme.colorScheme.onSurface, height: 1.5)),
+                            if (cr['photo_url'] != null && (cr['photo_url'] as String).isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.network(
+                                  cr['photo_url'].toString().startsWith('http')
+                                      ? cr['photo_url'].toString()
+                                      : '${ApiService.baseUrl}${cr['photo_url']}',
+                                  maxHeight: 180,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                                ),
+                              ),
+                            ],
                             if (cr['murtikar_response'] != null) ...[
                               const SizedBox(height: 10),
                               Container(

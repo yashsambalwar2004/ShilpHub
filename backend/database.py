@@ -237,11 +237,16 @@ def init_db():
         status TEXT NOT NULL DEFAULT 'pending',
         murtikar_response TEXT,
         extra_charge REAL DEFAULT 0,
+        photo_url TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
     );
     """)
+    try:
+        c.execute("ALTER TABLE change_requests ADD COLUMN photo_url TEXT")
+    except Exception:
+        pass
 
     # 10. Payments
     c.execute("""

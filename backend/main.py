@@ -1338,12 +1338,64 @@ def get_customer_booking_view(customer: Dict[str, Any] = Depends(auth.get_curren
     return booking
 
 @app.post("/api/customer/change-requests")
-def submit_change_request(
-    req: ChangeRequestCreate,
+async def submit_change_request(
+    request: Request,
     background_tasks: BackgroundTasks,
     customer: Dict[str, Any] = Depends(auth.get_current_customer)
 ):
-    """Customer submits a design-change request."""
+    """Customer submits a design-change request (supports JSON or multipart form-data with reference photo)."""
+    change_type = None
+    description = None
+    photo_file = None
+
+    ct_header = (request.headers.get("content-type") or "").lower()
+
+    if "multipart/form-data" in ct_header:
+        form = await request.form()
+        change_type = form.get("change_type")
+        description = form.get("description")
+        uploaded = form.get("image") or form.get("photo")
+        if uploaded and hasattr(uploaded, "filename") and uploaded.filename:
+            photo_file = uploaded
+    else:
+        try:
+            body = await request.json()
+            change_type = body.get("change_type")
+            description = body.get("description")
+        except Exception:
+            form = await request.form()
+            change_type = form.get("change_type")
+            description = form.get("description")
+            uploaded = form.get("image") or form.get("photo")
+            if uploaded and hasattr(uploaded, "filename") and uploaded.filename:
+                photo_file = uploaded
+
+    if not change_type or not description:
+        raise HTTPException(status_code=422, detail="change_type and description are required.")
+
+    photo_url = None
+    if photo_file:
+        raw_ext = os.path.splitext(photo_file.filename)[1].lower()
+        if raw_ext in ALLOWED_PHOTO_EXTENSIONS:
+            photo_ext = raw_ext
+        else:
+            photo_ext = ".jpg"
+
+        ct = (photo_file.content_type or "").lower()
+        if ct and not ct.startswith("image/") and ct not in {"application/octet-stream", "binary/octet-stream", "application/x-www-form-urlencoded"}:
+            raise HTTPException(status_code=400, detail="Uploaded file must be an image.")
+
+        photo_contents = await photo_file.read()
+        if len(photo_contents) > MAX_PHOTO_BYTES:
+            raise HTTPException(status_code=400, detail="Image is too large (max 8 MB).")
+
+        if len(photo_contents) > 0:
+            photo_filename = f"{uuid.uuid4()}{photo_ext}"
+            save_path = os.path.join(UPLOAD_DIR, photo_filename)
+            with open(save_path, "wb") as f:
+                f.write(photo_contents)
+            photo_url = f"/uploads/{photo_filename}"
+
     conn = database.get_connection()
     c = conn.cursor()
 
@@ -1351,11 +1403,11 @@ def submit_change_request(
     now = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
     c.execute("""
-    INSERT INTO change_requests (id, booking_id, customer_phone, change_type, description, status, extra_charge, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, 'pending', 0, ?, ?)
+    INSERT INTO change_requests (id, booking_id, customer_phone, change_type, description, status, extra_charge, photo_url, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, 'pending', 0, ?, ?, ?)
     """, (
         req_id, customer["booking_id"], customer["customer_phone"],
-        req.change_type, req.description, now, now
+        change_type, description, photo_url, now, now
     ))
     
     # Get Murtikar device tokens to send push notification
@@ -1369,15 +1421,16 @@ def submit_change_request(
                 push_service.send_push,
                 tokens,
                 "New Change Request",
-                f"Customer {customer['customer_phone']} requested a {req.change_type} change.",
+                f"Customer {customer['customer_phone']} requested a {change_type} change.",
                 {"booking_id": customer["booking_id"], "type": "change_request"}
             )
             
     conn.commit()
     conn.close()
 
-    auth.log_audit("change_request_submitted", target_type="change_request", target_id=req_id, details={"booking_id": customer["booking_id"], "type": req.change_type})
+    auth.log_audit("change_request_submitted", target_type="change_request", target_id=req_id, details={"booking_id": customer["booking_id"], "type": change_type})
     return {"success": True, "message": "Change request sent to murtikar for review."}
+
 
 @app.post("/api/customer/ratings")
 def submit_rating(

@@ -152,13 +152,22 @@ def run_tests():
     assert status_adv.status_code == 200
     print("[PASS] Test 13: Production status advanced to 'painting_in_progress'")
 
-    # 9. Customer Change Request
+    # 9. Customer Change Request (JSON and Multipart with Image)
     cr_res = client.post("/api/customer/change-requests", headers={"Authorization": f"Bearer {customer_token}"}, json={
         "change_type": "color",
         "description": "Please ensure the lion vahana is painted in royal gold."
     })
     assert cr_res.status_code == 200
-    print("[PASS] Test 14: Customer design change request submitted successfully")
+    
+    # Test Multipart upload with image attachment
+    cr_img_res = client.post(
+        "/api/customer/change-requests",
+        headers={"Authorization": f"Bearer {customer_token}"},
+        data={"change_type": "ornaments", "description": "Add gold crown details as shown in photo"},
+        files={"image": ("reference.jpg", b"\xFF\xD8\xFF\xE0fakejpgheaderdata", "image/jpeg")}
+    )
+    assert cr_img_res.status_code == 200
+    print("[PASS] Test 14: Customer design change request submitted successfully (JSON & Multipart Image)")
 
     # 10. Phone Access Revocation / Blocking
     block_ph = client.post("/api/murtikar/block-list", headers={"Authorization": f"Bearer {murtikar_token}"}, json={
