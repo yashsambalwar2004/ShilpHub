@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeService extends ChangeNotifier {
@@ -38,7 +39,10 @@ class ThemeService extends ChangeNotifier {
   static const lightTextSecondary = Color(0xFF6B6B7A);
 
   ThemeData get currentTheme {
-    return _isDarkMode ? _darkTheme : _lightTheme;
+    final base = _isDarkMode ? _darkTheme : _lightTheme;
+    return base.copyWith(
+      textTheme: GoogleFonts.outfitTextTheme(base.textTheme),
+    );
   }
 
   final ThemeData _darkTheme = ThemeData(
