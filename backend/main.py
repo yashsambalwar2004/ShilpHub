@@ -1376,6 +1376,7 @@ def submit_change_request(
 @app.post("/api/customer/ratings")
 def submit_rating(
     req: RatingCreate,
+    background_tasks: BackgroundTasks,
     customer: Dict[str, Any] = Depends(auth.get_current_customer)
 ):
     """Customer rates booking post-delivery (1-10 stars, 7-day lock)."""
@@ -1410,10 +1411,25 @@ def submit_rating(
             req.score, req.note, locked_at, now.isoformat(), now.isoformat()
         ))
 
+    # Send Push Notification to Murtikar
+    c.execute("SELECT murtikar_id FROM bookings WHERE id = ?", (customer["booking_id"],))
+    b = c.fetchone()
+    if b:
+        c.execute("SELECT fcm_token FROM device_tokens WHERE user_identifier = ? AND user_type = 'murtikar'", (b["murtikar_id"],))
+        tokens = [row["fcm_token"] for row in c.fetchall()]
+        if tokens:
+            stars = "⭐" * req.score
+            background_tasks.add_task(
+                push_service.send_push,
+                tokens,
+                "New Rating Received!",
+                f"A customer just rated their idol {req.score}/10 {stars}",
+                {"booking_id": customer["booking_id"], "type": "rating"}
+            )
+
     conn.commit()
     conn.close()
     return {"success": True, "message": "Thank you! Your rating has been recorded with blessings."}
-
 # ----------------------------------------------------------------------------
 # 9. MURTIKAR CHANGE REQUESTS MANAGEMENT
 # ----------------------------------------------------------------------------

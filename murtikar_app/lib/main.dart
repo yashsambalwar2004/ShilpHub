@@ -44,17 +44,31 @@ void _showForegroundBanner(RemoteMessage message) {
   final messenger = messengerKey.currentState;
   if (n == null || messenger == null) return;
 
-  final isChat = data['type'] == 'chat';
-  final isChangeReq = data['type'] == 'change_request';
+  final type = data['type'] as String?;
+  
+  // Customization based on notification type
+  Color bgColor = Colors.indigo.shade800; // default for chat
+  IconData icon = Icons.mark_chat_unread_rounded;
+  
+  if (type == 'change_request') {
+    bgColor = Colors.orange.shade800;
+    icon = Icons.design_services_rounded;
+  } else if (type == 'rating') {
+    bgColor = Colors.amber.shade700;
+    icon = Icons.star_rounded;
+  } else if (type == 'test') {
+    bgColor = Colors.teal.shade700;
+    icon = Icons.bug_report_rounded;
+  }
 
   messenger
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(
       behavior: SnackBarBehavior.floating,
-      elevation: 6,
-      margin: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+      elevation: 8,
+      margin: const EdgeInsets.only(bottom: 24, left: 16, right: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      backgroundColor: isChangeReq ? Colors.orange.shade800 : Colors.indigo.shade800,
+      backgroundColor: bgColor,
       duration: const Duration(seconds: 6),
       content: Row(
         children: [
@@ -65,12 +79,12 @@ void _showForegroundBanner(RemoteMessage message) {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              isChangeReq ? Icons.design_services_rounded : Icons.mark_chat_unread_rounded,
+              icon,
               color: Colors.white,
-              size: 24,
+              size: 26,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -80,20 +94,20 @@ void _showForegroundBanner(RemoteMessage message) {
                   n.title ?? 'New Notification',
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 3),
                 if (n.body != null)
                   Text(
                     n.body!,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14),
+                    style: TextStyle(color: Colors.white.withOpacity(0.95), fontSize: 14, height: 1.3),
                   ),
               ],
             ),
           ),
         ],
       ),
-      action: isChat
+      action: (type == 'chat' || type == 'change_request')
           ? SnackBarAction(
               label: 'OPEN',
               textColor: Colors.white,
