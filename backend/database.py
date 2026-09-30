@@ -38,11 +38,20 @@ class PgCursorWrapper:
         
         if "PRAGMA" in query:
             return self
-            
-        if params is None:
-            self.cursor.execute(query)
-        else:
-            self.cursor.execute(query, params)
+
+        try:
+            if params is None:
+                self.cursor.execute(query)
+            else:
+                self.cursor.execute(query, params)
+        except Exception as ex:
+            if "ALTER TABLE" in query or "CREATE INDEX" in query or "IF NOT EXISTS" in query or "column" in str(ex).lower():
+                try:
+                    self.cursor.connection.rollback()
+                except Exception:
+                    pass
+            else:
+                raise ex
         return self
             
     def fetchone(self):
@@ -251,8 +260,12 @@ def init_db():
     """)
     try:
         c.execute("ALTER TABLE change_requests ADD COLUMN photo_url TEXT")
+        conn.commit()
     except Exception:
-        pass
+        try:
+            conn.rollback()
+        except Exception:
+            pass
 
     # 10. Payments
     c.execute("""
