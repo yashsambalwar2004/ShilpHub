@@ -147,12 +147,24 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
+        elevation: 1,
+        shadowColor: Colors.black12,
         backgroundColor: theme.colorScheme.surface,
-        title: Text(
-          widget.isCustomer ? 'Message Workshop' : 'Customer Chat',
-          style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold),
+        title: Row(
+          children: [
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: theme.primaryColor.withOpacity(0.1),
+              child: Icon(widget.isCustomer ? Icons.storefront_rounded : Icons.person_rounded, size: 20, color: theme.primaryColor),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              widget.isCustomer ? 'Message Workshop' : 'Customer Chat',
+              style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.w700, fontSize: 18),
+            ),
+          ],
         ),
-        iconTheme: IconThemeData(color: theme.colorScheme.secondary),
+        iconTheme: IconThemeData(color: theme.colorScheme.onSurface),
       ),
       body: Column(
         children: [
@@ -161,19 +173,41 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
                 ? Center(child: CircularProgressIndicator(color: theme.primaryColor))
                 : _messages.isEmpty
                     ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.chat_bubble_outline, size: 64, color: isDark ? Colors.white24 : Colors.black12),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No messages yet.\nStart the conversation!',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: isDark ? Colors.grey : Colors.black54),
-                            ),
-                          ],
+                        child: Container(
+                          padding: const EdgeInsets.all(32),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF1E1E2C) : Colors.white,
+                            borderRadius: BorderRadius.circular(32),
+                            boxShadow: [
+                              BoxShadow(color: Colors.black.withOpacity(isDark ? 0.3 : 0.05), blurRadius: 20, offset: const Offset(0, 10))
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: theme.primaryColor.withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(Icons.forum_rounded, size: 48, color: theme.primaryColor),
+                              ),
+                              const SizedBox(height: 24),
+                              Text(
+                                'Say Hello! 👋',
+                                style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 22, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Start the conversation securely\nend-to-end.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: isDark ? Colors.grey : Colors.black54, fontSize: 14, height: 1.4),
+                              ),
+                            ],
+                          ),
                         ),
-                      ).animate().fade()
+                      ).animate().fade().scale(duration: const Duration(milliseconds: 400), curve: Curves.easeOutBack)
                     : ListView.builder(
                         controller: _scrollController,
                         padding: const EdgeInsets.all(16),
@@ -186,55 +220,81 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
                           return Align(
                             alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
                             child: Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              margin: const EdgeInsets.only(bottom: 16),
+                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                               decoration: BoxDecoration(
-                                color: isMe ? theme.primaryColor : (isDark ? const Color(0xFF222232) : Colors.grey.shade300),
-                                borderRadius: BorderRadius.circular(20).copyWith(
-                                  bottomRight: isMe ? const Radius.circular(0) : const Radius.circular(20),
-                                  bottomLeft: isMe ? const Radius.circular(20) : const Radius.circular(0),
+                                color: isMe ? null : (isDark ? const Color(0xFF222232) : Colors.white),
+                                gradient: isMe 
+                                    ? LinearGradient(
+                                        colors: [theme.primaryColor, Colors.indigo.shade400],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      )
+                                    : null,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: isMe 
+                                      ? theme.primaryColor.withOpacity(0.3) 
+                                      : Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  )
+                                ],
+                                borderRadius: BorderRadius.circular(24).copyWith(
+                                  bottomRight: isMe ? const Radius.circular(4) : const Radius.circular(24),
+                                  bottomLeft: isMe ? const Radius.circular(24) : const Radius.circular(4),
                                 ),
                               ),
                               constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
+                                crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      msg['content'] ?? '',
-                                      style: TextStyle(
-                                        color: isMe || isDark ? Colors.white : Colors.black87,
-                                        fontSize: 15,
-                                      ),
+                                  Text(
+                                    msg['content'] ?? '',
+                                    style: TextStyle(
+                                      color: isMe ? Colors.white : (isDark ? Colors.white : Colors.black87),
+                                      fontSize: 15,
+                                      height: 1.3,
                                     ),
                                   ),
                                   if (time.isNotEmpty) ...[
                                     const SizedBox(height: 4),
-                                    Text(
-                                      time,
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: isMe || isDark ? Colors.white70 : Colors.black54,
-                                      ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          time,
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w500,
+                                            color: isMe ? Colors.white70 : (isDark ? Colors.grey : Colors.black54),
+                                          ),
+                                        ),
+                                        if (isMe) ...[
+                                          const SizedBox(width: 4),
+                                          const Icon(Icons.done_all_rounded, size: 12, color: Colors.white70),
+                                        ]
+                                      ],
                                     ),
                                   ],
                                 ],
                               ),
                             ),
-                          );
+                          ).animate().fade().slideY(begin: 0.1, end: 0, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
                         },
                       ),
           ),
           SafeArea(
             top: false,
             child: Container(
-              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
+                color: isDark ? const Color(0xFF222232) : Colors.white,
+                borderRadius: BorderRadius.circular(32),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(isDark ? 0.2 : 0.05), blurRadius: 10, offset: const Offset(0, -5))
+                  BoxShadow(color: Colors.black.withOpacity(isDark ? 0.3 : 0.08), blurRadius: 20, offset: const Offset(0, 5))
                 ],
               ),
               child: Row(
@@ -242,26 +302,40 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
                   Expanded(
                     child: TextField(
                       controller: _msgController,
-                      style: TextStyle(color: theme.colorScheme.onSurface),
+                      style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 15),
                       textInputAction: TextInputAction.send,
                       decoration: InputDecoration(
                         hintText: 'Type your message...',
-                        hintStyle: TextStyle(color: isDark ? Colors.grey : Colors.black54),
-                        filled: true,
-                        fillColor: isDark ? const Color(0xFF222232) : Colors.grey.shade200,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                        hintStyle: TextStyle(color: isDark ? Colors.grey : Colors.black38),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                       ),
                       onSubmitted: (_) => _sendMessage(),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  CircleAvatar(
-                    backgroundColor: theme.primaryColor,
-                    radius: 24,
-                    child: IconButton(
-                      icon: const Icon(Icons.send, color: Colors.white, size: 20),
-                      onPressed: _sendMessage,
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [theme.primaryColor, Colors.indigo.shade400],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(color: theme.primaryColor.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 3))
+                      ]
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(24),
+                        onTap: _sendMessage,
+                        child: const Padding(
+                          padding: EdgeInsets.all(12),
+                          child: Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                        ),
+                      ),
                     ),
                   ),
                 ],
