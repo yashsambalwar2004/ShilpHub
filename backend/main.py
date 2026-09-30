@@ -1498,6 +1498,7 @@ def respond_to_change_request(
     booking_id: str,
     cr_id: str,
     req: ChangeRequestResponse,
+    background_tasks: BackgroundTasks,
     current_user: Dict[str, Any] = Depends(auth.get_current_user)
 ):
     if req.status not in ("accepted", "rejected"):
@@ -1511,7 +1512,7 @@ def respond_to_change_request(
 
         # Verify ownership
         c.execute(
-            "SELECT total_amount FROM bookings WHERE id = ? AND murtikar_id = ? AND deleted_at IS NULL",
+            "SELECT total_amount, customer_phone FROM bookings WHERE id = ? AND murtikar_id = ? AND deleted_at IS NULL",
             (booking_id, current_user["id"]),
         )
         booking = c.fetchone()
@@ -1520,7 +1521,7 @@ def respond_to_change_request(
 
         # The request must exist and still be pending
         c.execute(
-            "SELECT status FROM change_requests WHERE id = ? AND booking_id = ?",
+            "SELECT status, change_type FROM change_requests WHERE id = ? AND booking_id = ?",
             (cr_id, booking_id),
         )
         cr = c.fetchone()
@@ -1547,6 +1548,19 @@ def respond_to_change_request(
                 "UPDATE bookings SET total_amount = ?, updated_at = ? WHERE id = ?",
                 (booking["total_amount"] + extra, now, booking_id),
             )
+
+        # Push notification to customer in background
+        if booking["customer_phone"]:
+            c.execute("SELECT fcm_token FROM device_tokens WHERE user_identifier = ? AND user_type = 'customer'", (booking["customer_phone"],))
+            tokens = [row["fcm_token"] for row in c.fetchall()]
+            if tokens:
+                background_tasks.add_task(
+                    push_service.send_push,
+                    tokens,
+                    "Adjustment Request Updated",
+                    f"Artisan marked your '{cr['change_type']}' request as {req.status.upper()}.",
+                    {"booking_id": booking_id, "type": "change_request"}
+                )
 
         conn.commit()
     finally:

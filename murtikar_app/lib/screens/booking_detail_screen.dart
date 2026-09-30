@@ -39,19 +39,23 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
     _loadDetails();
   }
 
-  Future<void> _loadDetails() async {
-    setState(() => _isLoading = true);
+  Future<void> _loadDetails({bool showLoading = false}) async {
+    if (showLoading || _booking == null) {
+      setState(() => _isLoading = true);
+    }
     try {
       final b = await ApiService.getBookingDetails(widget.bookingId);
       if (mounted) setState(() => _booking = b);
     } catch (e) {
-      if (mounted) {
+      if (mounted && _booking == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted && (showLoading || _booking == null)) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -152,7 +156,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                     await ApiService.updateStatus(widget.bookingId, selectedStage, note: noteCtrl.text.trim(), imagePath: selectedImagePath);
                     if (!ctx.mounted) return;
                     Navigator.pop(ctx);
-                    _loadDetails();
+                    _loadDetails(showLoading: false);
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
                   }
@@ -256,7 +260,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                 await ApiService.recordPayment(widget.bookingId, amt, today, paymentMode, noteCtrl.text.trim());
                 if (!ctx.mounted) return;
                 Navigator.pop(ctx);
-                _loadDetails();
+                _loadDetails(showLoading: false);
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Payment Error: $e'), backgroundColor: Colors.red));
               }
@@ -320,7 +324,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                 await ApiService.addAuthorizedPhone(widget.bookingId, phoneCtrl.text.trim(), label, 'pin', pinCtrl.text.trim());
                 if (!ctx.mounted) return;
                 Navigator.pop(ctx);
-                _loadDetails();
+                _loadDetails(showLoading: false);
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
               }
@@ -406,12 +410,46 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
             onPressed: () async {
               Navigator.pop(ctx);
               final charge = double.tryParse(chargeCtrl.text) ?? 0.0;
+
+              // Optimistic UI update: instant response without screen flicker or delay
+              if (_booking != null && _booking!['change_requests'] != null) {
+                setState(() {
+                  final crs = List<Map<String, dynamic>>.from(
+                    (_booking!['change_requests'] as List).map((item) => Map<String, dynamic>.from(item as Map))
+                  );
+                  for (var cr in crs) {
+                    if (cr['id'] == crId) {
+                      cr['status'] = actionStatus;
+                      cr['murtikar_response'] = noteCtrl.text;
+                      cr['extra_charge'] = charge;
+                    }
+                  }
+                  _booking!['change_requests'] = crs;
+                  if (actionStatus == 'accepted' && charge > 0) {
+                    final currentTotal = (_booking!['total_amount'] as num?) ?? 0;
+                    _booking!['total_amount'] = currentTotal + charge;
+                    _booking!['balance_due'] = ((_booking!['balance_due'] as num?) ?? 0) + charge;
+                  }
+                });
+              }
+
               try {
                 await ApiService.respondToChangeRequest(widget.bookingId, crId, actionStatus, noteCtrl.text, charge);
-                _loadDetails();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Request marked as ${actionStatus.toUpperCase()} successfully!'),
+                      backgroundColor: actionStatus == 'accepted' ? const Color(0xFF00C896) : const Color(0xFFFF5E57),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                }
               } catch (e) {
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+                }
+              } finally {
+                _loadDetails(showLoading: false);
               }
             },
             child: const Text('Submit', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -940,14 +978,14 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                             ),
                             onPressed: () async {
                               await ApiService.togglePhoneBlock(widget.bookingId, ph['id']);
-                              _loadDetails();
+                              _loadDetails(showLoading: false);
                             },
                           ),
                           IconButton(
                             icon: const Icon(Icons.delete_rounded, color: Colors.redAccent, size: 22),
                             onPressed: () async {
                               await ApiService.removeAuthorizedPhone(widget.bookingId, ph['id']);
-                              _loadDetails();
+                              _loadDetails(showLoading: false);
                             },
                           ),
                         ],
