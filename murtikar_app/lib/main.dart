@@ -44,21 +44,62 @@ void _showForegroundBanner(RemoteMessage message) {
   final messenger = messengerKey.currentState;
   if (n == null || messenger == null) return;
 
+  final isChat = data['type'] == 'chat';
+  final isChangeReq = data['type'] == 'change_request';
+
   messenger
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(
       behavior: SnackBarBehavior.floating,
+      elevation: 6,
+      margin: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      backgroundColor: isChangeReq ? Colors.orange.shade800 : Colors.indigo.shade800,
       duration: const Duration(seconds: 6),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      content: Row(
         children: [
-          Text(n.title ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
-          if (n.body != null) Text(n.body!, maxLines: 2, overflow: TextOverflow.ellipsis),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              isChangeReq ? Icons.design_services_rounded : Icons.mark_chat_unread_rounded,
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  n.title ?? 'New Notification',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
+                ),
+                const SizedBox(height: 2),
+                if (n.body != null)
+                  Text(
+                    n.body!,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14),
+                  ),
+              ],
+            ),
+          ),
         ],
       ),
-      action: data['type'] == 'chat'
-          ? SnackBarAction(label: 'OPEN', onPressed: () => _openChatFromMessage(message))
+      action: isChat
+          ? SnackBarAction(
+              label: 'OPEN',
+              textColor: Colors.white,
+              backgroundColor: Colors.white.withOpacity(0.2),
+              onPressed: () => _openChatFromMessage(message),
+            )
           : null,
     ));
 }
