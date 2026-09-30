@@ -1727,6 +1727,16 @@ def get_murtikar_ratings(current_user: Dict[str, Any] = Depends(auth.get_current
         "reviews": rows
     }
 
+@app.get("/api/murtikar/profile")
+def get_murtikar_profile(current_user: Dict[str, Any] = Depends(auth.get_current_user)):
+    return {
+        "id": current_user["id"],
+        "name": current_user.get("name", "Master Artisan"),
+        "shop_name": current_user.get("shop_name", "Shree Ganesh Kalakendra"),
+        "phone": current_user.get("phone", ""),
+        "role": current_user.get("role", "murtikar"),
+    }
+
 # ----------------------------------------------------------------------------
 # 12. WEB PORTAL ROUTES (FastAPI Direct HTML View)
 # ----------------------------------------------------------------------------

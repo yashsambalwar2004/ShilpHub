@@ -160,6 +160,14 @@ class ApiService {
     throw Exception('Failed to load bookings');
   }
 
+  static Future<Map<String, dynamic>> getMurtikarProfile() async {
+    final res = await http.get(Uri.parse('$baseUrl/murtikar/profile'), headers: _headers());
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body);
+    }
+    return {};
+  }
+
   static Future<Map<String, dynamic>> getBookingDetails(String bookingId) async {
     final res = await http.get(Uri.parse('$baseUrl/bookings/$bookingId'), headers: _headers());
     if (res.statusCode == 200) {
