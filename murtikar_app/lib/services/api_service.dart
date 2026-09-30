@@ -121,25 +121,6 @@ class ApiService {
     throw Exception(_errorDetail(res, 'Registration failed'));
   }
 
-  /// Customer tracking login: booking number + phone + PIN/password.
-  static Future<Map<String, dynamic>> customerLogin(
-      String bookingNumber, String phone, String credential) async {
-    final res = await http.post(
-      Uri.parse('$baseUrl/auth/customer/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'booking_number': bookingNumber,
-        'phone': phone,
-        'credential': credential,
-      }),
-    );
-    if (res.statusCode == 200) {
-      final data = jsonDecode(res.body);
-      await setToken(data['token']);
-      return data;
-    }
-    throw Exception(_errorDetail(res, 'Login failed'));
-  }
 
   // --- Push notifications ---
   static Future<void> registerDeviceToken(String fcmToken) async {
