@@ -491,6 +491,46 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
     );
   }
 
+  void _showFullImageDialog(String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(16),
+        child: Stack(
+          alignment: Alignment.topRight,
+          children: [
+            GestureDetector(
+              onTap: () => Navigator.pop(ctx),
+              child: InteractiveViewer(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.network(
+                    imageUrl,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const Center(child: Icon(Icons.broken_image, color: Colors.white, size: 48)),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: CircleAvatar(
+                backgroundColor: Colors.black.withOpacity(0.7),
+                radius: 18,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white, size: 18),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -1089,16 +1129,45 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                             Text(cr['description'] ?? '', style: TextStyle(color: theme.colorScheme.onSurface, height: 1.5)),
                             if (cr['photo_url'] != null && (cr['photo_url'] as String).isNotEmpty) ...[
                               const SizedBox(height: 10),
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.network(
-                                  cr['photo_url'].toString().startsWith('http')
+                              GestureDetector(
+                                onTap: () {
+                                  final imgUrl = cr['photo_url'].toString().startsWith('http')
                                       ? cr['photo_url'].toString()
-                                      : '${ApiService.baseUrl}${cr['photo_url']}',
-                                  height: 180,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                                      : '${ApiService.baseUrl}${cr['photo_url']}';
+                                  _showFullImageDialog(imgUrl);
+                                },
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Stack(
+                                    alignment: Alignment.bottomRight,
+                                    children: [
+                                      Image.network(
+                                        cr['photo_url'].toString().startsWith('http')
+                                            ? cr['photo_url'].toString()
+                                            : '${ApiService.baseUrl}${cr['photo_url']}',
+                                        height: 180,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                        margin: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.65),
+                                          borderRadius: BorderRadius.circular(20),
+                                        ),
+                                        child: const Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.zoom_in_rounded, color: Colors.white, size: 14),
+                                            SizedBox(width: 4),
+                                            Text('Tap to view', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
