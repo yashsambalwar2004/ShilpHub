@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
@@ -220,7 +221,21 @@ class ApiService {
     req.fields['status_stage'] = stage;
     if (note != null && note.isNotEmpty) req.fields['note'] = note;
     if (imagePath != null && imagePath.isNotEmpty) {
-      req.files.add(await http.MultipartFile.fromPath('photo', imagePath));
+      final ext = imagePath.split('.').last.toLowerCase();
+      String subType = 'jpeg';
+      if (ext == 'png') {
+        subType = 'png';
+      } else if (ext == 'webp') {
+        subType = 'webp';
+      } else if (ext == 'heic' || ext == 'heif') {
+        subType = 'heic';
+      }
+
+      req.files.add(await http.MultipartFile.fromPath(
+        'photo',
+        imagePath,
+        contentType: MediaType('image', subType),
+      ));
     }
 
     final streamedRes = await req.send();

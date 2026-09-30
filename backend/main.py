@@ -28,7 +28,7 @@ UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # Only these image types may be uploaded (blocks .html/.svg/.js etc.)
-ALLOWED_PHOTO_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+ALLOWED_PHOTO_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif", ".bmp"}
 MAX_PHOTO_BYTES = 8 * 1024 * 1024  # 8 MB
 
 
@@ -1092,11 +1092,17 @@ async def update_production_status(
     photo_ext = None
     photo_contents = None
     if photo and photo.filename:
-        photo_ext = os.path.splitext(photo.filename)[1].lower() or ".jpg"
-        if photo_ext not in ALLOWED_PHOTO_EXTENSIONS:
-            raise HTTPException(status_code=400, detail="Only JPG, PNG or WEBP images are allowed.")
-        if photo.content_type and not photo.content_type.startswith("image/"):
+        raw_ext = os.path.splitext(photo.filename)[1].lower()
+        if raw_ext in ALLOWED_PHOTO_EXTENSIONS:
+            photo_ext = raw_ext
+        else:
+            photo_ext = ".jpg"  # Default extension for cache files from mobile image pickers
+
+        # Accept image/* as well as application/octet-stream (standard for Flutter/mobile multipart file pickers)
+        ct = (photo.content_type or "").lower()
+        if ct and not ct.startswith("image/") and ct not in {"application/octet-stream", "binary/octet-stream", "application/x-www-form-urlencoded"}:
             raise HTTPException(status_code=400, detail="Uploaded file must be an image.")
+
         photo_contents = await photo.read()
         if len(photo_contents) > MAX_PHOTO_BYTES:
             raise HTTPException(status_code=400, detail="Image is too large (max 8 MB).")
