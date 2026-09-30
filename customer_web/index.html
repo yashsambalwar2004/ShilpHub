@@ -12,113 +12,403 @@
       --primary: #D35400;
       --primary-light: #E67E22;
       --gold: #F39C12;
-      --gold-glow: rgba(243, 156, 18, 0.35);
-      --bg: #0F0F17;
-      --surface: #181824;
-      --surface-elevated: #222232;
-      --border: rgba(255, 255, 255, 0.1);
-      --text: #F8F9FA;
-      --text-muted: #9BA1B0;
-      --success: #2ECC71;
+      --gold-light: #F9CA24;
+      --gold-glow: rgba(243, 156, 18, 0.3);
+      --bg: #0A0A12;
+      --surface: #13131F;
+      --surface-2: #1C1C2E;
+      --surface-elevated: #222238;
+      --border: rgba(255,255,255,0.07);
+      --border-glow: rgba(243,156,18,0.25);
+      --text: #F0F0F8;
+      --text-muted: #8B8FA8;
+      --text-dim: #5A5D75;
+      --success: #00C896;
+      --success-glow: rgba(0,200,150,0.2);
       --warning: #F1C40F;
-      --danger: #E74C3C;
-      --radius: 16px;
-      --grad-center: #301705;
+      --danger: #FF5E57;
+      --danger-glow: rgba(255,94,87,0.2);
+      --radius: 20px;
+      --radius-lg: 28px;
+      --radius-xl: 36px;
     }
-    
+
     [data-theme="light"] {
-      --bg: #F5F6FA;
+      --bg: #F0F2FA;
       --surface: #FFFFFF;
-      --surface-elevated: #F8F9FA;
-      --border: rgba(0, 0, 0, 0.1);
-      --text: #1A1A24;
-      --text-muted: #6B6B7A;
-      --grad-center: #FAD7A1;
+      --surface-2: #F5F6FE;
+      --surface-elevated: #ECEDF8;
+      --border: rgba(0,0,0,0.07);
+      --border-glow: rgba(211,84,0,0.2);
+      --text: #14142A;
+      --text-muted: #5C5F80;
+      --text-dim: #9BA0BC;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', 'Noto Sans Devanagari', sans-serif; }
-    body { background-color: var(--bg); background-image: radial-gradient(circle at 50% 0%, var(--grad-center) 0%, var(--bg) 60%); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; transition: background-color 0.3s, color 0.3s; }
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
 
-    .header-bar { width: 100%; max-width: 760px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
-    .brand-title { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 800; background: linear-gradient(90deg, #F39C12, #E67E22); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .lang-toggle { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 3px; }
-    .lang-btn { background: none; border: none; color: var(--text-muted); font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 16px; cursor: pointer; transition: all 0.2s; }
-    .lang-btn.active { background: var(--primary); color: white; }
-
-    .container { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 20px; }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
-    .card.glow { border-color: rgba(243, 156, 18, 0.4); box-shadow: 0 10px 40px var(--gold-glow); }
-
-    /* Login View */
-    .hero-badge { display: inline-block; background: rgba(211, 84, 0, 0.15); border: 1px solid var(--primary); color: var(--gold); padding: 8px 20px; border-radius: 30px; font-size: 13px; font-weight: 800; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 0 20px var(--gold-glow); animation: breathe 3s infinite ease-in-out; }
-    @keyframes breathe { 0%, 100% { box-shadow: 0 0 15px var(--gold-glow); transform: translateY(0); } 50% { box-shadow: 0 0 30px rgba(243, 156, 18, 0.5); transform: translateY(-2px); } }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     
-    .form-group { margin-bottom: 22px; text-align: left; position: relative; }
-    .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    .form-control { width: 100%; background: var(--surface-elevated); border: 2px solid transparent; border-radius: 16px; padding: 16px 20px; color: var(--text); font-size: 16px; font-weight: 500; outline: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
-    .form-control:focus { border-color: var(--gold); background: var(--surface); box-shadow: 0 0 0 4px var(--gold-glow), inset 0 2px 4px rgba(0,0,0,0.05); transform: translateY(-2px); }
-    .form-control::placeholder { color: rgba(155, 161, 176, 0.5); }
-    
-    .btn { display: inline-flex; justify-content: center; align-items: center; gap: 10px; width: 100%; padding: 16px 24px; border-radius: 16px; border: none; font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-decoration: none; letter-spacing: 0.5px; }
-    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--gold)); color: white; box-shadow: 0 8px 25px rgba(211, 84, 0, 0.3); background-size: 200% auto; transition: 0.5s; }
-    .btn-primary:hover { background-position: right center; transform: translateY(-3px) scale(1.02); box-shadow: 0 15px 30px rgba(211, 84, 0, 0.4); }
-    .btn-primary:active { transform: translateY(1px); }
-    .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text); }
-    .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: var(--text-muted); }
+    body {
+      font-family: 'Outfit', 'Noto Sans Devanagari', sans-serif;
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(211,84,0,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 80% 80%, rgba(243,156,18,0.07) 0%, transparent 60%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 16px 40px;
+      transition: background-color 0.3s, color 0.3s;
+    }
 
-    .login-wrapper { padding: 48px 36px; border-radius: 28px; background: rgba(24, 24, 36, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); }
-    [data-theme="light"] .login-wrapper { background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(0,0,0,0.08); }
+    /* ── Header ── */
+    .header-bar {
+      width: 100%; max-width: 780px;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 32px; padding: 14px 20px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); backdrop-filter: blur(12px);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+    }
+    .brand-title {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 20px; font-weight: 900; letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #F39C12, #E67E22, #D35400);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .brand-title span:first-child { font-size: 22px; }
+    .header-controls { display: flex; gap: 10px; align-items: center; }
+    .icon-btn {
+      background: var(--surface-elevated); border: 1px solid var(--border);
+      color: var(--text-muted); width: 36px; height: 36px; border-radius: 10px;
+      cursor: pointer; font-size: 16px; display: flex; align-items: center;
+      justify-content: center; transition: all 0.2s;
+    }
+    .icon-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .lang-toggle { display: flex; background: var(--surface-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 3px; gap: 2px; }
+    .lang-btn { background: none; border: none; color: var(--text-muted); font-size: 12px; font-weight: 700; padding: 5px 11px; border-radius: 9px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+    .lang-btn.active { background: linear-gradient(135deg, var(--primary), var(--gold)); color: white; box-shadow: 0 2px 8px rgba(211,84,0,0.4); }
 
-    /* Tracking View */
-    .order-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
-    .booking-tag { font-size: 13px; font-weight: 700; color: var(--gold); background: rgba(243, 156, 18, 0.15); padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(243, 156, 18, 0.3); }
-    .idol-title { font-size: 24px; font-weight: 800; margin-top: 6px; }
-    .customer-name { color: var(--text-muted); font-size: 14px; }
+    /* ── Container ── */
+    .container { width: 100%; max-width: 780px; display: flex; flex-direction: column; gap: 18px; }
 
-    /* Stepper / Timeline */
-    .timeline { position: relative; margin: 30px 0; padding-left: 36px; }
-    .timeline::before { content: ''; position: absolute; left: 15px; top: 10px; bottom: 10px; width: 3px; background: var(--border); }
+    /* ── Cards ── */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      position: relative; overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-glow), transparent);
+    }
+    .card.glow {
+      border-color: var(--border-glow);
+      box-shadow: 0 12px 48px rgba(211,84,0,0.12), 0 0 0 1px var(--border-glow);
+    }
+
+    /* ── Section headers ── */
+    .section-heading {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+    }
+    .section-heading-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; background: linear-gradient(135deg, var(--primary), var(--gold));
+      flex-shrink: 0;
+    }
+    .section-heading h2 { font-size: 18px; font-weight: 800; }
+
+    /* ── Login ── */
+    .login-wrapper {
+      padding: 52px 40px; border-radius: var(--radius-xl);
+      background: linear-gradient(160deg, rgba(30,20,10,0.9) 0%, rgba(20,14,30,0.85) 100%);
+      backdrop-filter: blur(24px); border: 1px solid var(--border-glow);
+      text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px var(--border-glow);
+    }
+    [data-theme="light"] .login-wrapper {
+      background: rgba(255,255,255,0.95);
+      border: 1px solid rgba(211,84,0,0.15);
+      box-shadow: 0 20px 60px rgba(211,84,0,0.08);
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, rgba(211,84,0,0.15), rgba(243,156,18,0.1));
+      border: 1px solid var(--border-glow); color: var(--gold);
+      padding: 8px 22px; border-radius: 50px; font-size: 13px; font-weight: 800;
+      margin-bottom: 24px; letter-spacing: 2px; text-transform: uppercase;
+      animation: breathe 3.5s ease-in-out infinite;
+    }
+    @keyframes breathe {
+      0%, 100% { box-shadow: 0 0 12px var(--gold-glow); }
+      50% { box-shadow: 0 0 28px rgba(243,156,18,0.5), 0 0 48px rgba(243,156,18,0.15); transform: translateY(-2px); }
+    }
+    .login-title { font-size: 34px; font-weight: 900; letter-spacing: -1px; margin-bottom: 10px; line-height: 1.1; }
+    .login-subtitle { color: var(--text-muted); font-size: 15px; line-height: 1.7; margin-bottom: 36px; }
+
+    /* ── Forms ── */
+    .form-group { margin-bottom: 22px; text-align: left; }
+    .form-label {
+      display: block; font-size: 12px; font-weight: 800;
+      margin-bottom: 8px; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .input-wrap { position: relative; }
+    .input-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 18px; pointer-events: none; }
+    .form-control {
+      width: 100%; background: var(--surface-elevated);
+      border: 2px solid transparent; border-radius: 16px;
+      padding: 16px 20px 16px 48px; color: var(--text);
+      font-size: 16px; font-weight: 500; outline: none; font-family: inherit;
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .form-control:focus {
+      border-color: var(--gold); background: var(--surface-2);
+      box-shadow: 0 0 0 4px var(--gold-glow), inset 0 2px 4px rgba(0,0,0,0.05);
+      transform: translateY(-1px);
+    }
+    .form-control::placeholder { color: var(--text-dim); }
+    select.form-control { padding-left: 20px; }
+    textarea.form-control { padding: 14px 18px; resize: vertical; min-height: 90px; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; justify-content: center; align-items: center;
+      gap: 10px; width: 100%; padding: 16px 24px; border-radius: 16px;
+      border: none; font-size: 15px; font-weight: 800; font-family: inherit;
+      cursor: pointer; transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+      text-decoration: none; letter-spacing: 0.3px; position: relative; overflow: hidden;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--gold) 100%);
+      color: white; box-shadow: 0 8px 24px rgba(211,84,0,0.35);
+    }
+    .btn-primary::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1)); opacity: 0; transition: opacity 0.3s; }
+    .btn-primary:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 16px 36px rgba(211,84,0,0.45); }
+    .btn-primary:hover::after { opacity: 1; }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-gold { background: linear-gradient(135deg, var(--gold-light), var(--gold)); color: #111; box-shadow: 0 8px 24px rgba(243,156,18,0.35); }
+    .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(243,156,18,0.45); }
+    .btn-outline { background: var(--surface-elevated); border: 1.5px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: var(--surface-2); border-color: var(--text-muted); transform: translateY(-1px); }
+
+    /* ── Alerts ── */
+    .alert { padding: 14px 18px; border-radius: 14px; font-size: 14px; font-weight: 500; margin-bottom: 18px; display: none; }
+    .alert-danger { background: var(--danger-glow); border: 1px solid rgba(255,94,87,0.3); color: #FF7875; }
+    .alert-success { background: var(--success-glow); border: 1px solid rgba(0,200,150,0.3); color: #00DBA8; }
+
+    /* ── Tracking: Order header ── */
+    .order-hero {
+      display: grid; grid-template-columns: 1fr auto; gap: 16px;
+      align-items: start; margin-bottom: 20px;
+    }
+    .booking-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(243,156,18,0.12); border: 1px solid var(--border-glow);
+      color: var(--gold); padding: 5px 14px; border-radius: 50px;
+      font-size: 12px; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 10px;
+    }
+    .idol-title { font-size: 26px; font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 6px; }
+    .customer-name { color: var(--text-muted); font-size: 14px; display: flex; align-items: center; gap: 6px; }
+    .delivery-badge {
+      background: var(--surface-elevated); border: 1px solid var(--border);
+      border-radius: 16px; padding: 12px 18px; text-align: right;
+      white-space: nowrap;
+    }
+    .delivery-badge-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+    .delivery-badge-date { font-size: 18px; font-weight: 900; color: var(--gold); margin-top: 2px; }
+
+    .notes-block {
+      background: linear-gradient(135deg, rgba(243,156,18,0.06), rgba(211,84,0,0.06));
+      border: 1px solid var(--border-glow); border-left: 3px solid var(--gold);
+      padding: 14px 18px; border-radius: 14px; font-size: 14px; line-height: 1.6;
+    }
+    .notes-block strong { color: var(--gold); margin-right: 6px; }
+
+    /* ── Timeline ── */
+    .timeline { position: relative; padding-left: 44px; margin: 8px 0; }
+    .timeline::before {
+      content: ''; position: absolute; left: 19px; top: 8px; bottom: 8px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--primary), var(--border) 90%);
+    }
     .step-item { position: relative; margin-bottom: 28px; }
     .step-item:last-child { margin-bottom: 0; }
-    .step-node { position: absolute; left: -36px; top: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--surface-elevated); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--text-muted); z-index: 2; }
-    
-    .step-item.completed .step-node { background: var(--success); border-color: var(--success); color: white; }
-    .step-item.active .step-node { background: var(--gold); border-color: #fff; color: #111; box-shadow: 0 0 15px var(--gold-glow); animation: pulse 2s infinite; }
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(243, 156, 18, 0); } 100% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0); } }
-
-    .step-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .step-node {
+      position: absolute; left: -44px; top: 2px;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--surface-elevated); border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; color: var(--text-dim); z-index: 2;
+      transition: all 0.3s;
+    }
+    .step-item.completed .step-node {
+      background: var(--success); border-color: var(--success); color: white;
+      box-shadow: 0 0 12px var(--success-glow);
+    }
+    .step-item.active .step-node {
+      background: linear-gradient(135deg, var(--gold), var(--primary));
+      border-color: transparent; color: white;
+      box-shadow: 0 0 0 4px rgba(243,156,18,0.2), 0 0 20px var(--gold-glow);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 4px rgba(243,156,18,0.2), 0 0 20px var(--gold-glow); } 50% { box-shadow: 0 0 0 8px rgba(243,156,18,0.1), 0 0 32px rgba(243,156,18,0.5); } }
+    .step-body { background: var(--surface-2); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; }
+    .step-item.active .step-body { border-color: var(--border-glow); background: linear-gradient(135deg, rgba(243,156,18,0.05), rgba(211,84,0,0.03)); }
+    .step-item.completed .step-body { opacity: 0.75; }
+    .step-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
     .step-item.active .step-title { color: var(--gold); }
-    .step-desc { font-size: 14px; color: var(--text-muted); }
-    .step-date { font-size: 12px; color: #6E7487; margin-top: 4px; }
+    .step-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+    .step-date { font-size: 11px; color: var(--text-dim); margin-top: 6px; display: flex; align-items: center; gap: 4px; font-weight: 600; }
+    .step-photo img { max-width: 160px; border-radius: 10px; border: 1px solid var(--border); margin-top: 10px; }
 
-    /* Payment Receipt Card */
-    .payment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin: 18px 0; }
-    .pay-stat { background: var(--surface-elevated); padding: 14px; border-radius: 12px; border: 1px solid var(--border); }
-    .pay-stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
-    .pay-stat-val { font-size: 20px; font-weight: 800; margin-top: 4px; }
-    .text-success { color: var(--success); }
-    .text-warning { color: var(--gold); }
-    .text-danger { color: var(--danger); }
+    /* ── Action Buttons Row ── */
+    .action-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 24px; }
+    @media (max-width: 520px) { .action-row { grid-template-columns: 1fr; } }
+    .action-btn {
+      padding: 14px 10px; border-radius: 16px; font-size: 14px; font-weight: 700;
+      font-family: inherit; cursor: pointer; border: none;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      transition: all 0.2s; text-decoration: none;
+    }
+    .action-btn .action-icon { font-size: 22px; }
+    .action-btn-design { background: var(--surface-elevated); color: var(--text); border: 1.5px solid var(--border); }
+    .action-btn-design:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+    .action-btn-chat { background: var(--surface-elevated); color: var(--text); border: 1.5px solid var(--border); }
+    .action-btn-chat:hover { border-color: #4A90E2; color: #4A90E2; transform: translateY(-2px); }
+    .action-btn-rate { background: linear-gradient(135deg, var(--gold-light), var(--gold)); color: #111; }
+    .action-btn-rate:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--gold-glow); }
 
-    /* Workshop Card */
-    .workshop-card { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; }
-    .workshop-actions { display: flex; gap: 10px; }
-    .btn-action { padding: 10px 16px; border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
-    .btn-call { background: rgba(46, 204, 113, 0.15); color: #2ECC71; border: 1px solid rgba(46, 204, 113, 0.3); }
-    .btn-wa { background: rgba(37, 211, 102, 0.2); color: #25D366; border: 1px solid rgba(37, 211, 102, 0.4); }
+    /* ── Payment cards ── */
+    .payment-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; }
+    @media (max-width: 520px) { .payment-grid { grid-template-columns: 1fr; } }
+    .pay-stat {
+      background: var(--surface-elevated); border: 1px solid var(--border);
+      border-radius: 16px; padding: 18px; position: relative; overflow: hidden;
+    }
+    .pay-stat::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .pay-stat.total::before { background: linear-gradient(90deg, var(--text-dim), transparent); }
+    .pay-stat.paid::before { background: linear-gradient(90deg, var(--success), transparent); }
+    .pay-stat.due::before { background: linear-gradient(90deg, var(--danger), transparent); }
+    .pay-stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 8px; }
+    .pay-stat-val { font-size: 22px; font-weight: 900; }
+    .pay-stat-icon { font-size: 28px; float: right; opacity: 0.25; margin-top: -4px; }
 
-    /* Modal */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
-    .modal-overlay.active { display: flex; }
-    .modal-content { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 28px; max-width: 500px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
-    
-    .rating-stars { display: flex; gap: 8px; justify-content: center; margin: 20px 0; font-size: 28px; cursor: pointer; }
-    .star { color: #444; transition: color 0.2s; }
-    .star.selected { color: var(--gold); }
+    /* ── Workshop contact ── */
+    .workshop-grid { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+    .workshop-avatar {
+      width: 52px; height: 52px; border-radius: 16px;
+      background: linear-gradient(135deg, var(--primary), var(--gold));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; flex-shrink: 0;
+    }
+    .workshop-info { display: flex; align-items: center; gap: 14px; }
+    .workshop-name { font-size: 18px; font-weight: 800; }
+    .workshop-meta { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+    .workshop-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-contact {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 18px; border-radius: 12px; font-size: 14px; font-weight: 700;
+      text-decoration: none; border: 1.5px solid; font-family: inherit; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-call { background: rgba(0,200,150,0.1); color: var(--success); border-color: rgba(0,200,150,0.3); }
+    .btn-call:hover { background: rgba(0,200,150,0.2); transform: translateY(-1px); }
+    .btn-wa { background: rgba(37,211,102,0.1); color: #25D366; border-color: rgba(37,211,102,0.3); }
+    .btn-wa:hover { background: rgba(37,211,102,0.2); transform: translateY(-1px); }
 
-    .alert { padding: 12px 16px; border-radius: 10px; font-size: 14px; margin-bottom: 16px; display: none; }
-    .alert-danger { background: rgba(231, 76, 60, 0.15); border: 1px solid var(--danger); color: #FF7675; }
-    .alert-success { background: rgba(46, 204, 113, 0.15); border: 1px solid var(--success); color: #55EFC4; }
+    /* ── Change Requests ── */
+    .cr-item {
+      background: var(--surface-elevated); border-radius: 14px; padding: 16px;
+      border-left: 3px solid var(--text-dim); margin-bottom: 10px;
+    }
+    .cr-item.pending { border-left-color: var(--gold); }
+    .cr-item.accepted { border-left-color: var(--success); }
+    .cr-item.rejected { border-left-color: var(--danger); }
+
+    /* ── Status badge ── */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 50px; font-size: 12px; font-weight: 800;
+    }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(12px);
+      z-index: 100; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.active { display: flex; animation: modal-in 0.25s ease; }
+    @keyframes modal-in { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+    .modal-content {
+      background: var(--surface-2); border: 1px solid var(--border-glow);
+      border-radius: var(--radius-lg); padding: 32px; max-width: 520px; width: 100%;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px var(--border-glow);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-title { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+    .modal-subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.6; }
+
+    /* ── Chat ── */
+    .chat-bubble-me {
+      max-width: 78%; padding: 12px 16px; border-radius: 18px 18px 4px 18px;
+      background: linear-gradient(135deg, var(--primary), var(--gold));
+      color: white; align-self: flex-end; font-size: 14px; line-height: 1.4;
+      box-shadow: 0 4px 12px rgba(211,84,0,0.3);
+    }
+    .chat-bubble-them {
+      max-width: 78%; padding: 12px 16px; border-radius: 18px 18px 18px 4px;
+      background: var(--surface-elevated); border: 1px solid var(--border);
+      color: var(--text); align-self: flex-start; font-size: 14px; line-height: 1.4;
+    }
+    .chat-input-row { display: flex; gap: 10px; margin-top: 12px; }
+    .chat-send-btn { padding: 14px 20px; width: auto; border-radius: 14px; flex-shrink: 0; }
+
+    /* ── Rating stars ── */
+    .rating-stars { display: flex; gap: 6px; justify-content: center; margin: 20px 0; cursor: pointer; flex-wrap: wrap; }
+    .star { font-size: 30px; color: var(--surface-elevated); transition: all 0.15s; filter: grayscale(1); }
+    .star.selected { color: var(--gold); filter: none; text-shadow: 0 0 12px var(--gold-glow); }
+    .star:hover { transform: scale(1.15); }
+
+    /* ── Logout button ── */
+    .logout-row { text-align: center; margin: 8px 0 32px; }
+    .btn-logout { display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; width: auto; border-radius: 14px; background: transparent; border: 1.5px solid var(--border); color: var(--text-muted); font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.2s; }
+    .btn-logout:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-glow); }
+
+    /* ── Upload area ── */
+    .upload-area {
+      display: flex; align-items: center; gap: 14px; cursor: pointer;
+      background: var(--surface-elevated); border: 2px dashed var(--border);
+      border-radius: 14px; padding: 16px 20px; transition: all 0.3s;
+    }
+    .upload-area:hover { border-color: var(--gold); background: rgba(243,156,18,0.04); }
+    .upload-icon { font-size: 28px; flex-shrink: 0; }
+    .upload-title { font-size: 14px; font-weight: 700; color: var(--text); }
+    .upload-hint { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--surface-elevated); border-radius: 8px; }
+
+    /* ── Receipt row ── */
+    .receipt-row {
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--surface-elevated); padding: 12px 16px; border-radius: 12px;
+      font-size: 14px; border-left: 2px solid var(--success); margin-bottom: 8px;
+    }
+
+    @media (max-width: 600px) {
+      .login-wrapper { padding: 32px 20px; }
+      .order-hero { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -129,8 +419,8 @@
       <span>🪔</span>
       <span>MurtiTrack</span>
     </div>
-    <div style="display: flex; gap: 12px; align-items: center;">
-      <button id="themeToggleBtn" class="lang-btn" onclick="toggleTheme()" style="font-size: 16px; padding: 4px 8px; border: 1px solid var(--border); background: var(--surface);">☀️</button>
+    <div class="header-controls">
+      <button id="themeToggleBtn" class="icon-btn" onclick="toggleTheme()" title="Toggle theme">☀️</button>
       <div class="lang-toggle">
         <button class="lang-btn active" onclick="setLang('en')">EN</button>
         <button class="lang-btn" onclick="setLang('hi')">हिन्दी</button>
@@ -142,31 +432,40 @@
   <div class="container">
 
     <!-- LOGIN SCREEN -->
-    <div id="loginSection" class="card glow login-wrapper" style="text-align: center;">
+    <div id="loginSection" class="card glow login-wrapper">
       <span class="hero-badge" id="txtBlessing">॥ श्री गणेशाय नमः ॥</span>
-      <h2 style="font-size: 32px; font-weight: 800; margin-bottom: 12px; color: var(--text); letter-spacing: -0.5px;" id="txtLoginTitle">Track Your Idol Order</h2>
-      <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 32px; line-height: 1.6;" id="txtLoginSubtitle">Enter your booking details provided on your workshop token slip.</p>
+      <h2 class="login-title" id="txtLoginTitle">Track Your Idol Order</h2>
+      <p class="login-subtitle" id="txtLoginSubtitle">Enter your booking details provided on your workshop token slip.</p>
 
       <div id="loginAlert" class="alert alert-danger"></div>
 
       <form id="trackingForm" onsubmit="handleCustomerLogin(event)">
         <div class="form-group">
-          <label id="lblBookingNumber">Booking Number (बुकिंग नंबर)</label>
-          <input type="text" id="inpBookingNo" class="form-control" placeholder="e.g. MUR-2026-00001" required>
+          <label class="form-label" id="lblBookingNumber">Booking Number (बुकिंग नंबर)</label>
+          <div class="input-wrap">
+            <span class="input-icon">🎫</span>
+            <input type="text" id="inpBookingNo" class="form-control" placeholder="e.g. MUR-2026-00001" required>
+          </div>
         </div>
 
         <div class="form-group">
-          <label id="lblPhone">Registered Mobile Number (मोबाइल नंबर)</label>
-          <input type="tel" id="inpPhone" class="form-control" placeholder="10-digit mobile number" required pattern="[6-9][0-9]{9}">
+          <label class="form-label" id="lblPhone">Registered Mobile Number (मोबाइल नंबर)</label>
+          <div class="input-wrap">
+            <span class="input-icon">📱</span>
+            <input type="tel" id="inpPhone" class="form-control" placeholder="10-digit mobile number" required pattern="[6-9][0-9]{9}">
+          </div>
         </div>
 
         <div class="form-group">
-          <label id="lblPin">Security PIN or Password (पिन / पासवर्ड)</label>
-          <input type="password" id="inpPin" class="form-control" placeholder="4-6 digit security PIN" required>
+          <label class="form-label" id="lblPin">Security PIN or Password (पिन / पासवर्ड)</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔐</span>
+            <input type="password" id="inpPin" class="form-control" placeholder="4-6 digit security PIN" required>
+          </div>
         </div>
 
-        <button type="submit" id="btnTrackOrder" class="btn btn-primary" style="margin-top: 20px;">
-          <span style="font-size: 20px;">✨</span> <span id="txtBtnTrack">View Live Status</span>
+        <button type="submit" id="btnTrackOrder" class="btn btn-primary" style="margin-top: 24px;">
+          <span>✨</span> <span id="txtBtnTrack">View Live Status</span>
         </button>
       </form>
     </div>
@@ -176,98 +475,116 @@
       
       <!-- Order Header Card -->
       <div class="card">
-        <div class="order-header">
+        <div class="order-hero">
           <div>
-            <span class="booking-tag" id="dispBookingNo">MUR-2026-00001</span>
+            <span class="booking-chip">🎫 <span id="dispBookingNo">MUR-2026-00001</span></span>
             <h1 class="idol-title" id="dispIdolDetails">Eco-Friendly Ganesha Idol</h1>
-            <div class="customer-name" id="dispCustomerName">Booked for: Anand Deshmukh</div>
+            <div class="customer-name">👤 <span id="dispCustomerName">Booked for: Anand Deshmukh</span></div>
           </div>
-          <div style="text-align: right;">
-            <div style="font-size: 12px; color: var(--text-muted);" id="lblDelivery">Expected Delivery</div>
-            <div style="font-size: 18px; font-weight: 800; color: var(--gold);" id="dispDeliveryDate">12 Sep 2026</div>
+          <div class="delivery-badge">
+            <div class="delivery-badge-label" id="lblDelivery">Expected Delivery</div>
+            <div class="delivery-badge-date" id="dispDeliveryDate">12 Sep 2026</div>
           </div>
         </div>
-
-        <div style="background: var(--surface-elevated); padding: 12px 16px; border-radius: 10px; font-size: 14px; border-left: 3px solid var(--gold);">
-          <span style="color: var(--gold); font-weight: 600;" id="lblSpecialNotes">Special Instructions:</span>
-          <span id="dispNotes" style="color: #D1D5DB;">Traditional saffron pitambar, gold mukut with pearl border.</span>
+        <div class="notes-block">
+          <strong id="lblSpecialNotes">📝 Special Instructions:</strong>
+          <span id="dispNotes">Traditional saffron pitambar, gold mukut with pearl border.</span>
         </div>
       </div>
 
       <!-- Live Stepper / Production Progress Timeline -->
       <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <h2 style="font-size: 18px; font-weight: 700;" id="txtTimelineTitle">Production Progress</h2>
-          <span id="txtCurrentStatusBadge" style="background: rgba(46, 204, 113, 0.2); color: #2ECC71; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px;">Painting in Progress</span>
+        <div class="section-heading">
+          <div class="section-heading-icon">⚙️</div>
+          <div>
+            <h2 id="txtTimelineTitle">Production Progress</h2>
+            <div style="font-size:13px; color:var(--text-muted); margin-top:2px;">Live updates from the artisan workshop</div>
+          </div>
+          <span id="txtCurrentStatusBadge" style="margin-left:auto; background: rgba(0,200,150,0.15); color: var(--success); font-size: 12px; font-weight: 800; padding: 6px 14px; border-radius: 50px; border: 1px solid rgba(0,200,150,0.3); white-space:nowrap;">Painting in Progress</span>
         </div>
 
         <div class="timeline" id="timelineList">
           <!-- Populated dynamically -->
         </div>
 
-        <div style="margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap;">
-          <button class="btn btn-outline" style="flex: 1;" onclick="openChangeRequestModal()" id="btnReqChange">
-            <span>✏️</span> <span>Request Design Adjustment</span>
+        <div class="action-row">
+          <button class="action-btn action-btn-design" onclick="openChangeRequestModal()" id="btnReqChange">
+            <span class="action-icon">✏️</span>
+            <span>Design Adjustment</span>
           </button>
-          <button class="btn btn-outline" style="flex: 1;" onclick="openChatModal()">
-            <span>💬</span> <span>Chat with Artisan</span>
+          <button class="action-btn action-btn-chat" onclick="openChatModal()">
+            <span class="action-icon">💬</span>
+            <span>Chat with Artisan</span>
           </button>
-          <button class="btn btn-primary" style="flex: 1; background: var(--gold); color: #111;" id="btnRateBlessing" onclick="openRatingModal()">
-            <span>⭐</span> <span>Submit Feedback</span>
+          <button class="action-btn action-btn-rate" id="btnRateBlessing" onclick="openRatingModal()">
+            <span class="action-icon">⭐</span>
+            <span>Rate Experience</span>
           </button>
         </div>
       </div>
 
       <!-- Change Requests Section -->
       <div class="card" id="crCard" style="display: none;">
-        <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 12px;">Your Design Requests</h2>
-        <div id="crList" style="display: flex; flex-direction: column; gap: 10px;">
-          <!-- Populated dynamically -->
+        <div class="section-heading">
+          <div class="section-heading-icon">📋</div>
+          <h2>Your Design Requests</h2>
         </div>
+        <div id="crList" style="display: flex; flex-direction: column; gap: 0;"></div>
       </div>
 
       <!-- Payment Summary Receipt Card -->
       <div class="card">
-        <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 4px;" id="txtPaymentTitle">Payment Status</h2>
-        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Payments are settled directly with the artisan workshop in cash or UPI.</div>
-
-        <div class="payment-grid">
-          <div class="pay-stat">
-            <div class="pay-stat-label" id="lblTotalAmount">Total Amount</div>
-            <div class="pay-stat-val" id="dispTotalAmount">₹45,000</div>
-          </div>
-          <div class="pay-stat">
-            <div class="pay-stat-label text-success" id="lblPaidAmount">Advance / Paid</div>
-            <div class="pay-stat-val text-success" id="dispPaidAmount">₹15,000</div>
-          </div>
-          <div class="pay-stat">
-            <div class="pay-stat-label text-danger" id="lblBalanceDue">Remaining Balance</div>
-            <div class="pay-stat-val text-danger" id="dispBalanceDue">₹30,000</div>
+        <div class="section-heading">
+          <div class="section-heading-icon">💰</div>
+          <div>
+            <h2 id="txtPaymentTitle">Payment Status</h2>
+            <div style="font-size:13px; color:var(--text-muted); margin-top:2px;">Settled directly with the artisan workshop</div>
           </div>
         </div>
 
-        <!-- Payments Table -->
-        <div style="margin-top: 14px;">
-          <div style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;" id="lblReceiptHistory">Receipt History</div>
-          <div id="paymentsList" style="display: flex; flex-direction: column; gap: 8px;">
-            <!-- Populated dynamically -->
+        <div class="payment-grid">
+          <div class="pay-stat total">
+            <span class="pay-stat-icon">🏷️</span>
+            <div class="pay-stat-label" id="lblTotalAmount">Total Amount</div>
+            <div class="pay-stat-val" id="dispTotalAmount">₹45,000</div>
           </div>
+          <div class="pay-stat paid">
+            <span class="pay-stat-icon">✅</span>
+            <div class="pay-stat-label" id="lblPaidAmount" style="color:var(--success);">Advance / Paid</div>
+            <div class="pay-stat-val" style="color:var(--success);" id="dispPaidAmount">₹15,000</div>
+          </div>
+          <div class="pay-stat due">
+            <span class="pay-stat-icon">⏳</span>
+            <div class="pay-stat-label" id="lblBalanceDue" style="color:var(--danger);">Remaining Balance</div>
+            <div class="pay-stat-val" style="color:var(--danger);" id="dispBalanceDue">₹30,000</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 8px;">
+          <div style="font-size: 12px; font-weight: 800; color: var(--text-muted); margin-bottom: 10px; text-transform:uppercase; letter-spacing:1px;" id="lblReceiptHistory">Receipt History</div>
+          <div id="paymentsList"></div>
         </div>
       </div>
 
       <!-- Murtikar Workshop Contact Card -->
       <div class="card">
-        <div class="workshop-card">
-          <div>
-            <div style="font-size: 12px; color: var(--text-muted);" id="lblArtisan">Master Artisan / Murtikar</div>
-            <div style="font-size: 18px; font-weight: 700;" id="dispMurtikarShop">Shree Ganesh Kalakendra</div>
-            <div style="font-size: 14px; color: var(--text-muted);" id="dispMurtikarName">Ramesh Chandra Pal • Pune, Kasba Peth</div>
+        <div class="section-heading" style="margin-bottom:16px;">
+          <div class="section-heading-icon">🏺</div>
+          <h2 id="lblArtisan">Master Artisan / Workshop</h2>
+        </div>
+        <div class="workshop-grid">
+          <div class="workshop-info">
+            <div class="workshop-avatar">🪔</div>
+            <div>
+              <div class="workshop-name" id="dispMurtikarShop">Shree Ganesh Kalakendra</div>
+              <div class="workshop-meta" id="dispMurtikarName">Ramesh Chandra Pal • Pune, Kasba Peth</div>
+            </div>
           </div>
           <div class="workshop-actions">
-            <a href="#" id="linkCallMurtikar" class="btn-action btn-call">
-              <span>📞</span> <span id="txtBtnCall">Call Workshop</span>
+            <a href="#" id="linkCallMurtikar" class="btn-contact btn-call">
+              <span>📞</span> <span id="txtBtnCall">Call</span>
             </a>
-            <a href="#" id="linkWaMurtikar" target="_blank" class="btn-action btn-wa">
+            <a href="#" id="linkWaMurtikar" target="_blank" class="btn-contact btn-wa">
               <span>💬</span> <span>WhatsApp</span>
             </a>
           </div>
@@ -275,8 +592,8 @@
       </div>
 
       <!-- Logout / Switch Order -->
-      <div style="text-align: center; margin-bottom: 40px;">
-        <button class="btn btn-outline" style="max-width: 250px; margin: 0 auto;" onclick="logoutCustomer()">
+      <div class="logout-row">
+        <button class="btn-logout" onclick="logoutCustomer()">
           <span>🔒</span> <span id="txtBtnLogout">Logout / Switch Order</span>
         </button>
       </div>
@@ -288,9 +605,8 @@
   <!-- MODAL: CHANGE REQUEST -->
   <div id="changeModal" class="modal-overlay">
     <div class="modal-content">
-      <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 8px;">Request Design Adjustment</h3>
-      <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 18px;">Submit your customization request to the murtikar. Minor adjustments will be reviewed promptly.</p>
-      
+      <div class="modal-title">✏️ Request Design Adjustment</div>
+      <div class="modal-subtitle">Submit your customization request to the murtikar. Minor adjustments will be reviewed promptly.</div>
       <div id="crAlert" class="alert"></div>
 
       <div class="form-group">
@@ -339,10 +655,9 @@
   <!-- MODAL: RATING & FEEDBACK -->
   <div id="ratingModal" class="modal-overlay">
     <div class="modal-content" style="text-align: center;">
-      <span style="font-size: 32px;">🪔</span>
-      <h3 style="font-size: 20px; font-weight: 800; margin: 8px 0;">Artisan Blessings & Feedback</h3>
-      <p style="font-size: 14px; color: var(--text-muted);">How satisfied are you with the craft, devotion, and delivery of your idol?</p>
-      
+      <div style="font-size:48px; margin-bottom:8px;">🪔</div>
+      <div class="modal-title">Artisan Blessings & Feedback</div>
+      <div class="modal-subtitle">How satisfied are you with the craft, devotion, and delivery of your idol?</div>
       <div id="ratingAlert" class="alert"></div>
 
       <div class="rating-stars" id="starContainer">
@@ -364,19 +679,22 @@
 
   <!-- MODAL: CHAT -->
   <div id="chatModal" class="modal-overlay">
-    <div class="modal-content" style="display: flex; flex-direction: column; height: 80vh; max-height: 600px; padding: 20px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px;">
-        <h3 style="font-size: 18px; font-weight: 800; margin: 0;">Support Chat</h3>
-        <button onclick="closeModals()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 20px;">✕</button>
+    <div class="modal-content" style="display: flex; flex-direction: column; height: 80vh; max-height: 600px; padding: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 14px;">
+        <div>
+          <div class="modal-title" style="margin-bottom:0;">💬 Support Chat</div>
+          <div style="font-size:13px; color:var(--text-muted); margin-top:2px;">Direct message with your artisan</div>
+        </div>
+        <button onclick="closeModals()" style="background: var(--surface-elevated); border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; font-size: 18px; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; transition:0.2s;" onmouseenter="this.style.borderColor='var(--danger)';this.style.color='var(--danger)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">✕</button>
       </div>
       
-      <div id="chatMessages" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 10px; margin-bottom: 12px;">
+      <div id="chatMessages" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; margin-bottom: 14px;">
         <!-- Populated dynamically -->
       </div>
       
-      <div style="display: flex; gap: 8px;">
-        <input type="text" id="inpChatMsg" class="form-control" placeholder="Type your message..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
-        <button class="btn btn-primary" style="width: auto; padding: 0 20px;" onclick="sendChatMessage()">Send</button>
+      <div class="chat-input-row">
+        <input type="text" id="inpChatMsg" class="form-control" style="padding-left:18px;" placeholder="Type your message..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
+        <button class="btn btn-primary chat-send-btn" onclick="sendChatMessage()">Send ➤</button>
       </div>
     </div>
   </div>
@@ -624,11 +942,13 @@
         const item = document.createElement('div');
         item.className = `step-item ${statusClass}`;
         item.innerHTML = `
-          <div class="step-node">${isDone ? '✓' : (idx + 1)}</div>
-          <div class="step-title">${stage[currentLang] || stage.en}</div>
-          <div class="step-desc">${noteStr || (isActive ? 'Craftsman currently working on this stage.' : (isDone ? 'Stage successfully completed.' : 'Upcoming stage.'))}</div>
-          ${dateStr ? `<div class="step-date">📅 ${dateStr}</div>` : ''}
-          ${updateRec && updateRec.photo_url ? `<div style="margin-top:8px;"><img src="${updateRec.photo_url}" style="max-width:200px; border-radius:8px; border:1px solid var(--border);"></div>` : ''}
+          <div class="step-node">${isDone ? '✓' : (isActive ? '●' : (idx + 1))}</div>
+          <div class="step-body">
+            <div class="step-title">${stage[currentLang] || stage.en}</div>
+            <div class="step-desc">${noteStr || (isActive ? '⚒️ Craftsman currently working on this stage.' : (isDone ? 'Stage successfully completed.' : 'Upcoming stage.'))}</div>
+            ${dateStr ? `<div class="step-date">📅 ${dateStr}</div>` : ''}
+            ${updateRec && updateRec.photo_url ? `<div class="step-photo"><img src="${updateRec.photo_url}" alt="Progress photo"></div>` : ''}
+          </div>
         `;
         timelineEl.appendChild(item);
       });
@@ -642,17 +962,17 @@
         data.change_requests.forEach(cr => {
           const isPending = cr.status === 'pending';
           const isAccepted = cr.status === 'accepted';
-          const statusColor = isPending ? 'var(--gold)' : (isAccepted ? '#2ECC71' : '#E74C3C');
-          
+          const statusDot = isPending ? '🟡' : (isAccepted ? '🟢' : '🔴');
+          const statusLabel = cr.status.charAt(0).toUpperCase() + cr.status.slice(1);
           const crItem = document.createElement('div');
-          crItem.style.cssText = 'background:var(--surface-elevated); padding:12px; border-radius:10px; border-left: 3px solid ' + statusColor;
+          crItem.className = `cr-item ${cr.status}`;
           crItem.innerHTML = `
-            <div style="display:flex; justify-content:space-between; margin-bottom: 4px;">
-              <strong style="color:var(--text); text-transform:capitalize;">${cr.change_type.replace('_', ' ')}</strong>
-              <span style="color:${statusColor}; font-size:12px; font-weight:bold; text-transform:uppercase;">${cr.status}</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <strong style="color:var(--text); text-transform:capitalize; font-size:15px;">${cr.change_type.replace(/_/g, ' ')}</strong>
+              <span style="display:flex; align-items:center; gap:4px; font-size:12px; font-weight:800; text-transform:uppercase;">${statusDot} ${statusLabel}</span>
             </div>
-            <div style="font-size:13px; color:var(--text-muted); margin-bottom: 6px;">${cr.description}</div>
-            ${cr.murtikar_response ? `<div style="font-size:12px; color:#A0A5B5; background:rgba(255,255,255,0.05); padding:6px; border-radius:4px;"><b>Artisan Reply:</b> ${cr.murtikar_response}</div>` : ''}
+            <div style="font-size:13px; color:var(--text-muted); line-height:1.5; margin-bottom:${cr.murtikar_response ? '10px' : '0'};">${cr.description}</div>
+            ${cr.murtikar_response ? `<div style="font-size:12px; background:var(--surface-2); border:1px solid var(--border); padding:10px 12px; border-radius:10px; color:var(--text-muted);"><span style="color:var(--gold); font-weight:700;">Artisan Reply:</span> ${cr.murtikar_response}</div>` : ''}
           `;
           crListEl.appendChild(crItem);
         });
@@ -665,13 +985,13 @@
       payListEl.innerHTML = '';
       (data.payments || []).forEach(p => {
         const pItem = document.createElement('div');
-        pItem.style.cssText = 'display:flex; justify-content:space-between; align-items:center; background:var(--surface-elevated); padding:10px 14px; border-radius:10px; font-size:14px;';
+        pItem.className = 'receipt-row';
         pItem.innerHTML = `
           <div>
-            <div style="font-weight:600;">₹${p.amount.toLocaleString('en-IN')} <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">(${p.payment_mode})</span></div>
-            <div style="font-size:12px; color:var(--text-muted);">${p.note || (p.is_advance ? 'Initial Advance' : 'Balance payment')}</div>
+            <div style="font-weight:700; font-size:15px;">₹${p.amount.toLocaleString('en-IN')} <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">${p.payment_mode}</span></div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">${p.note || (p.is_advance ? '🌟 Initial Advance' : 'Balance payment')}</div>
           </div>
-          <div style="font-size:12px; color:var(--text-muted);">${p.payment_date}</div>
+          <div style="font-size:12px; color:var(--text-muted); font-weight:600; white-space:nowrap;">📅 ${p.payment_date}</div>
         `;
         payListEl.appendChild(pItem);
       });
