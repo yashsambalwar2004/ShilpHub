@@ -37,11 +37,207 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _fetchBookings();
   }
 
+  bool _hasShownGreetingPopup = false;
+
   Future<void> _loadProfile() async {
     try {
       final p = await ApiService.getMurtikarProfile();
-      if (mounted) setState(() => _profile = p);
+      if (mounted) {
+        setState(() => _profile = p);
+        if (!_hasShownGreetingPopup) {
+          _hasShownGreetingPopup = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _showGreetingPopup(context);
+          });
+        }
+      }
     } catch (_) {}
+  }
+
+  String _getGreetingTitle(String lang, int hour, String rawName) {
+    String formattedName = rawName.trim();
+    if (formattedName.isNotEmpty) {
+      final parts = formattedName.split(' ');
+      formattedName = '${parts[0]} Ji';
+    } else {
+      formattedName = 'Master Artisan';
+    }
+
+    if (lang == 'hi') {
+      if (hour < 12) return 'सुप्रभात $formattedName! 🌅';
+      if (hour < 17) return 'शुभ दोपहर $formattedName! ☀️';
+      return 'शुभ संध्या $formattedName! 🌆';
+    } else if (lang == 'mr') {
+      if (hour < 12) return 'शुभ सकाळ $formattedName! 🌅';
+      if (hour < 17) return 'शुभ दुपार $formattedName! ☀️';
+      return 'शुभ संध्या $formattedName! 🌆';
+    } else {
+      if (hour < 12) return 'Good Morning, $formattedName! 🌅';
+      if (hour < 17) return 'Good Afternoon, $formattedName! ☀️';
+      return 'Good Evening, $formattedName! 🌆';
+    }
+  }
+
+  void _showGreetingPopup(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final lang = loc.currentLocale;
+    final hour = DateTime.now().hour;
+    final name = _profile['name'] as String? ?? '';
+    final shopName = _profile['shop_name'] as String? ?? 'Shree Ganesh Kalakendra';
+
+    final title = _getGreetingTitle(lang, hour, name);
+
+    String blessingText = '॥ श्री गणेशाय नमः ॥';
+    String quoteText = 'आपकी पावन कला एवं साधना से भगवान गणेश का रूप सजीव होता है।';
+    String buttonText = '🙏 जय श्री गणेश (प्रारंभ करें)';
+
+    if (lang == 'mr') {
+      blessingText = '॥ श्री गणेशाय नमः ॥';
+      quoteText = 'तुमच्या पवित्र हातांनी घडणारी सुरेख रूपे आणि अपार भक्ती.';
+      buttonText = '🙏 जय श्री गणेश (सुरू करा)';
+    } else if (lang == 'en') {
+      blessingText = '॥ Shree Ganeshaya Namah ॥';
+      quoteText = 'Crafting divine idols with sacred hands & pure devotion.';
+      buttonText = '🙏 Jai Shree Ganesh • Start Crafting';
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) => GestureDetector(
+        onTap: () => Navigator.pop(ctx),
+        child: Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Container(
+            padding: const EdgeInsets.all(26),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: isDark
+                    ? [const Color(0xFF2C1E14), const Color(0xFF191928)]
+                    : [const Color(0xFFFFF3E0), const Color(0xFFFFFFFF)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              borderRadius: BorderRadius.circular(32),
+              border: Border.all(
+                color: const Color(0xFFF39C12).withOpacity(0.5),
+                width: 2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFD35400).withOpacity(0.4),
+                  blurRadius: 32,
+                  offset: const Offset(0, 10),
+                )
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF39C12).withOpacity(0.18),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFFF39C12).withOpacity(0.5), width: 1.5),
+                  ),
+                  child: const Text('🪔', style: TextStyle(fontSize: 42))
+                      .animate(onPlay: (c) => c.repeat(reverse: true))
+                      .scale(begin: const Offset(0.9, 0.9), end: const Offset(1.1, 1.1), duration: 1800.ms, curve: Curves.easeInOut),
+                ),
+                const SizedBox(height: 18),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD35400).withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFFD35400).withOpacity(0.35)),
+                  ),
+                  child: Text(
+                    blessingText,
+                    style: const TextStyle(
+                      color: Color(0xFFE67E22),
+                      fontWeight: FontWeight.w900,
+                      fontSize: 13,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: theme.colorScheme.onSurface,
+                    height: 1.25,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  quoteText,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.45,
+                    fontStyle: FontStyle.italic,
+                    color: isDark ? Colors.white70 : Colors.black87,
+                  ),
+                ),
+                if (shopName.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF39C12).withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.storefront_rounded, size: 16, color: Color(0xFFF39C12)),
+                        const SizedBox(width: 8),
+                        Text(
+                          shopName,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFFF39C12),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFD35400),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    elevation: 6,
+                    shadowColor: const Color(0xFFD35400).withOpacity(0.5),
+                  ),
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(
+                    buttonText,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Touch screen to dismiss',
+                  style: TextStyle(fontSize: 11, color: isDark ? Colors.grey.shade500 : Colors.black45),
+                ),
+              ],
+            ),
+          ).animate().fade(duration: 300.ms).scale(begin: const Offset(0.85, 0.85), curve: Curves.easeOutBack),
+        ),
+      ),
+    );
   }
 
   Future<void> _loadFestivals() async {
@@ -90,163 +286,142 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final isDark = theme.brightness == Brightness.dark;
     final lang = loc.currentLocale;
     final hour = DateTime.now().hour;
+    final name = _profile['name'] as String? ?? '';
+    final shopName = _profile['shop_name'] as String? ?? '';
 
-    String greetingTitle = 'Welcome, Master Artisan! 🪔';
-    String blessingText = '॥ Shree Ganeshaya Namah ॥';
-    String quoteText = 'Crafting divine idols with sacred hands & pure devotion.';
+    final greetingTitle = _getGreetingTitle(lang, hour, name);
 
-    if (lang == 'hi') {
-      if (hour < 12) {
-        greetingTitle = 'सुप्रभात मूर्तिकार जी! 🌅';
-      } else if (hour < 17) {
-        greetingTitle = 'शुभ दोपहर मूर्तिकार जी! ☀️';
-      } else {
-        greetingTitle = 'शुभ संध्या मूर्तिकार जी! 🌆';
-      }
-      blessingText = '॥ श्री गणेशाय नमः ॥';
-      quoteText = 'आपकी पावन कला एवं साधना से भगवान गणेश का रूप सजीव होता है।';
-    } else if (lang == 'mr') {
-      if (hour < 12) {
-        greetingTitle = 'शुभ सकाळ मूर्तिकार जी! 🌅';
-      } else if (hour < 17) {
-        greetingTitle = 'शुभ दुपार मूर्तिकार जी! ☀️';
-      } else {
-        greetingTitle = 'शुभ संध्या मूर्तिकार जी! 🌆';
-      }
+    String blessingText = '॥ श्री गणेशाय नमः ॥';
+    String quoteText = 'आपकी पावन कला एवं साधना से भगवान गणेश का रूप सजीव होता है।';
+
+    if (lang == 'mr') {
       blessingText = '॥ श्री गणेशाय नमः ॥';
       quoteText = 'तुमच्या पवित्र हातांनी घडणारी सुरेख रूपे आणि अपार भक्ती.';
-    } else {
-      if (hour < 12) {
-        greetingTitle = 'Good Morning, Master Artisan! 🌅';
-      } else if (hour < 17) {
-        greetingTitle = 'Good Afternoon, Master Artisan! ☀️';
-      } else {
-        greetingTitle = 'Good Evening, Master Artisan! 🌆';
-      }
+    } else if (lang == 'en') {
       blessingText = '॥ Shree Ganeshaya Namah ॥';
       quoteText = 'Crafting divine idols with sacred hands & pure devotion.';
     }
 
-    final shopName = _profile['shop_name'] as String? ?? '';
-    final name = _profile['name'] as String? ?? '';
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isDark
-              ? [const Color(0xFF2C1E14), const Color(0xFF1E1E2E)]
-              : [const Color(0xFFFFF3E0), const Color(0xFFFBE9E7)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: const Color(0xFFF39C12).withOpacity(isDark ? 0.35 : 0.25),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFD35400).withOpacity(isDark ? 0.25 : 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          )
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF39C12).withOpacity(0.18),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFF39C12).withOpacity(0.4)),
-                ),
-                child: const Text('🪔', style: TextStyle(fontSize: 26))
-                    .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                    .scale(begin: const Offset(0.92, 0.92), end: const Offset(1.08, 1.08), duration: 2.seconds, curve: Curves.easeInOut),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD35400).withOpacity(0.14),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFD35400).withOpacity(0.3)),
-                      ),
-                      child: Text(
-                        blessingText,
-                        style: const TextStyle(
-                          color: Color(0xFFE67E22),
-                          fontWeight: FontWeight.w900,
-                          fontSize: 11,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      greetingTitle,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        color: theme.colorScheme.onSurface,
-                        height: 1.2,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+    return GestureDetector(
+      onTap: () => _showGreetingPopup(context),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: isDark
+                ? [const Color(0xFF2C1E14), const Color(0xFF1E1E2E)]
+                : [const Color(0xFFFFF3E0), const Color(0xFFFBE9E7)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          const SizedBox(height: 12),
-          Text(
-            quoteText,
-            style: TextStyle(
-              fontSize: 13,
-              height: 1.4,
-              fontStyle: FontStyle.italic,
-              color: isDark ? Colors.white70 : Colors.black87,
-            ),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: const Color(0xFFF39C12).withOpacity(isDark ? 0.35 : 0.25),
+            width: 1.5,
           ),
-          if (shopName.isNotEmpty || name.isNotEmpty) ...[
-            const SizedBox(height: 12),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFD35400).withOpacity(isDark ? 0.25 : 0.08),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            )
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Row(
               children: [
-                const Icon(Icons.storefront_rounded, size: 14, color: Color(0xFFF39C12)),
-                const SizedBox(width: 6),
-                Text(
-                  shopName.isNotEmpty ? shopName : 'Shree Ganesh Kalakendra',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFFF39C12),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF39C12).withOpacity(0.18),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFFF39C12).withOpacity(0.4)),
+                  ),
+                  child: const Text('🪔', style: TextStyle(fontSize: 26))
+                      .animate(onPlay: (controller) => controller.repeat(reverse: true))
+                      .scale(begin: const Offset(0.92, 0.92), end: const Offset(1.08, 1.08), duration: 2.seconds, curve: Curves.easeInOut),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFD35400).withOpacity(0.14),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFFD35400).withOpacity(0.3)),
+                        ),
+                        child: Text(
+                          blessingText,
+                          style: const TextStyle(
+                            color: Color(0xFFE67E22),
+                            fontWeight: FontWeight.w900,
+                            fontSize: 11,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        greetingTitle,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: theme.colorScheme.onSurface,
+                          height: 1.2,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                if (name.isNotEmpty) ...[
-                  Text(
-                    ' • $name',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.grey : Colors.black54,
-                    ),
-                  ),
-                ]
               ],
             ),
+            const SizedBox(height: 12),
+            Text(
+              quoteText,
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.4,
+                fontStyle: FontStyle.italic,
+                color: isDark ? Colors.white70 : Colors.black87,
+              ),
+            ),
+            if (shopName.isNotEmpty || name.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Icon(Icons.storefront_rounded, size: 14, color: Color(0xFFF39C12)),
+                  const SizedBox(width: 6),
+                  Text(
+                    shopName.isNotEmpty ? shopName : 'Shree Ganesh Kalakendra',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFFF39C12),
+                    ),
+                  ),
+                  if (name.isNotEmpty) ...[
+                    Text(
+                      ' • $name',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.grey : Colors.black54,
+                      ),
+                    ),
+                  ]
+                ],
+              ),
+            ],
           ],
-        ],
-      ),
-    ).animate().fade(duration: 400.ms).slideY(begin: -0.05, curve: Curves.easeOut);
+        ),
+      ).animate().fade(duration: 400.ms).slideY(begin: -0.05, curve: Curves.easeOut),
+    );
   }
 
   void _showChangePasswordDialog() {
