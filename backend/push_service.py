@@ -122,7 +122,21 @@ def send_push(
                 token=t,
                 notification=messaging.Notification(title=title, body=body),
                 data=payload,
-                android=messaging.AndroidConfig(priority="high"),
+                android=messaging.AndroidConfig(
+                    priority="high",
+                    notification=messaging.AndroidNotification(
+                        sound="default",
+                        channel_id="high_importance_channel",
+                        priority="high",
+                        default_sound=True,
+                        default_vibrate_timings=True,
+                    ),
+                ),
+                apns=messaging.APNSConfig(
+                    payload=messaging.APNSPayload(
+                        aps=messaging.Aps(sound="default", badge=1)
+                    )
+                ),
             )
             for t in tokens
         ]
