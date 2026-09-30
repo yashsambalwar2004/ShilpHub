@@ -45,6 +45,9 @@ def init_push() -> bool:
     cred = None
     env_json = os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON")
     
+    # Render places secret files in the root directory since slashes aren't allowed in the filename
+    root_key_path = os.path.join(os.path.dirname(__file__), "..", "firebase-service-account.json")
+    
     if env_json:
         try:
             import json
@@ -57,6 +60,10 @@ def init_push() -> bool:
             return False
     elif os.path.exists(KEY_PATH):
         cred = credentials.Certificate(KEY_PATH)
+    elif os.path.exists(root_key_path):
+        cred = credentials.Certificate(root_key_path)
+    elif os.path.exists("/etc/secrets/firebase-service-account.json"):
+        cred = credentials.Certificate("/etc/secrets/firebase-service-account.json")
     else:
         if not _warned:
             print(f"[push] Key file not found: {KEY_PATH} and FIREBASE_SERVICE_ACCOUNT_JSON is not set. Push disabled.")
