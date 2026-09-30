@@ -309,6 +309,26 @@
         <textarea id="crDescription" class="form-control" rows="4" placeholder="e.g. Please use darker saffron for the pitambar and add traditional gold tilak on forehead..." required></textarea>
       </div>
 
+      <div class="form-group">
+        <label style="display:flex; align-items:center; gap:8px;">
+          Reference Image <span style="color: var(--text-muted); font-size: 12px; font-weight: 400;">(Optional — helps artisan understand your request)</span>
+        </label>
+        <label id="imgUploadLabel" style="display:flex; align-items:center; gap:12px; cursor:pointer; background:var(--surface-elevated); border:2px dashed var(--border); border-radius:12px; padding:14px 18px; transition:border-color 0.2s;" onmouseenter="this.style.borderColor='var(--gold)'" onmouseleave="this.style.borderColor='var(--border)'">
+          <span style="font-size:24px;">📎</span>
+          <div>
+            <div id="imgUploadText" style="font-size:14px; font-weight:600; color:var(--text);">Click to attach a photo</div>
+            <div style="font-size:12px; color:var(--text-muted);">JPG, PNG — max 5 MB</div>
+          </div>
+          <input type="file" id="crImage" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleImageSelect(this)">
+        </label>
+        <div id="imgPreviewContainer" style="margin-top:10px; display:none;">
+          <div style="position:relative; display:inline-block;">
+            <img id="imgPreview" style="max-width:100%; max-height:160px; border-radius:10px; border:1px solid var(--border);">
+            <button onclick="clearImageUpload()" style="position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.6); border:none; color:white; border-radius:50%; width:24px; height:24px; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; line-height:1;">✕</button>
+          </div>
+        </div>
+      </div>
+
       <div style="display: flex; gap: 10px; margin-top: 20px;">
         <button class="btn btn-outline" style="flex: 1;" onclick="closeModals()">Cancel</button>
         <button class="btn btn-primary" style="flex: 2;" onclick="submitChangeRequest()">Submit Request</button>
@@ -727,9 +747,33 @@
       }
     }
 
+    function handleImageSelect(input) {
+      const file = input.files[0];
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image is too large. Please choose an image under 5 MB.');
+        input.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById('imgPreview').src = e.target.result;
+        document.getElementById('imgPreviewContainer').style.display = 'block';
+        document.getElementById('imgUploadText').textContent = `✅ ${file.name}`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearImageUpload() {
+      document.getElementById('crImage').value = '';
+      document.getElementById('imgPreviewContainer').style.display = 'none';
+      document.getElementById('imgUploadText').textContent = 'Click to attach a photo';
+    }
+
     async function submitChangeRequest() {
       const change_type = document.getElementById('crType').value;
       const description = document.getElementById('crDescription').value.trim();
+      const imageFile = document.getElementById('crImage').files[0];
       const alertBox = document.getElementById('crAlert');
 
       if (!description || description.length < 5) {
@@ -740,20 +784,36 @@
       }
 
       try {
-        const res = await fetch('/api/customer/change-requests', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${customerToken}`
-          },
-          body: JSON.stringify({ change_type, description })
-        });
+        let res;
+        if (imageFile) {
+          // Use multipart/form-data when image is attached
+          const formData = new FormData();
+          formData.append('change_type', change_type);
+          formData.append('description', description);
+          formData.append('image', imageFile);
+          res = await fetch('/api/customer/change-requests', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${customerToken}` },
+            body: formData
+          });
+        } else {
+          res = await fetch('/api/customer/change-requests', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${customerToken}`
+            },
+            body: JSON.stringify({ change_type, description })
+          });
+        }
+
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || 'Failed to submit change request');
 
         alertBox.className = 'alert alert-success';
-        alertBox.innerText = 'Adjustment request submitted successfully to the murtikar!';
+        alertBox.innerText = '✅ Adjustment request submitted successfully to the murtikar!';
         alertBox.style.display = 'block';
+        clearImageUpload();
         setTimeout(() => {
           closeModals();
           fetchBookingDetails();
