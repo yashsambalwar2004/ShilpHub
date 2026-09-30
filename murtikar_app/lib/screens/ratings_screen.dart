@@ -20,13 +20,17 @@ class _RatingsScreenState extends State<RatingsScreen> {
     _loadRatings();
   }
 
-  Future<void> _loadRatings() async {
-    setState(() => _isLoading = true);
+  Future<void> _loadRatings({bool showLoading = false}) async {
+    if (showLoading || _data.isEmpty) {
+      setState(() => _isLoading = true);
+    }
     try {
       final r = await ApiService.getRatings();
       if (mounted) setState(() => _data = r);
     } catch (_) {} finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted && (showLoading || _data.isEmpty)) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 

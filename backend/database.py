@@ -75,9 +75,12 @@ def get_connection():
         conn = psycopg2.connect(clean_url)
         return PgConnectionWrapper(conn)
     else:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(DB_PATH, timeout=15)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA foreign_keys = ON;")
+        conn.execute("PRAGMA journal_mode = WAL;")
+        conn.execute("PRAGMA synchronous = NORMAL;")
+        conn.execute("PRAGMA temp_store = MEMORY;")
         return conn
 
 def hash_credential(text: str) -> str:
@@ -361,6 +364,15 @@ def init_db():
         UNIQUE(user_identifier, fcm_token)
     );
     """)
+
+    # Performance Indexes for sub-10ms queries
+    c.execute("CREATE INDEX IF NOT EXISTS idx_bookings_murtikar ON bookings(murtikar_id);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_bookings_customer_phone ON bookings(customer_phone);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_change_requests_booking ON change_requests(booking_id);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_payments_booking ON payments(booking_id);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_status_updates_booking ON status_updates(booking_id);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_device_tokens_lookup ON device_tokens(user_identifier, user_type);")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_authorized_phones_lookup ON booking_authorized_phones(booking_id, phone_number);")
 
     conn.commit()
 

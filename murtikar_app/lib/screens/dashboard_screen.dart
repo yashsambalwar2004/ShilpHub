@@ -247,8 +247,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } catch (_) {}
   }
 
-  Future<void> _fetchBookings() async {
-    setState(() => _isLoading = true);
+  Future<void> _fetchBookings({bool showLoading = false}) async {
+    if (showLoading || _bookingData == null) {
+      setState(() => _isLoading = true);
+    }
     try {
       final data = await ApiService.getBookings(
         festival: _selectedFestival,
@@ -257,13 +259,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
       if (mounted) setState(() => _bookingData = data);
     } catch (e) {
-      if (mounted) {
+      if (mounted && _bookingData == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error loading bookings: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted && (showLoading || _bookingData == null)) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
