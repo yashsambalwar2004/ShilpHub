@@ -6,7 +6,7 @@
   <title>MurtiTrack — Customer Order Tracking</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: #D35400;
@@ -45,12 +45,16 @@
       --text-dim: #9BA0BC;
     }
 
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     
+    body, input, button, textarea, select {
+      font-family: 'Outfit', 'Noto Sans Devanagari', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
     body {
-      font-family: 'Outfit', 'Noto Sans Devanagari', sans-serif;
       background-color: var(--bg);
       background-image:
         radial-gradient(ellipse 80% 50% at 50% -10%, rgba(211,84,0,0.18) 0%, transparent 70%),
