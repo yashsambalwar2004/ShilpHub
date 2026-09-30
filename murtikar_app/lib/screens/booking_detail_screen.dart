@@ -1095,7 +1095,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                                   cr['photo_url'].toString().startsWith('http')
                                       ? cr['photo_url'].toString()
                                       : '${ApiService.baseUrl}${cr['photo_url']}',
-                                  maxHeight: 180,
+                                  height: 180,
                                   width: double.infinity,
                                   fit: BoxFit.cover,
                                   errorBuilder: (_, __, ___) => const SizedBox.shrink(),
