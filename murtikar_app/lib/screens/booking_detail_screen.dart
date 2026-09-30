@@ -431,18 +431,60 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
             onPressed: _showDeleteConfirmation,
           ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: theme.colorScheme.secondary,
-          labelColor: theme.colorScheme.secondary,
-          unselectedLabelColor: isDark ? Colors.grey : Colors.black54,
-          isScrollable: true,
-          tabs: const [
-            Tab(icon: Icon(Icons.timeline), text: 'Status Timeline'),
-            Tab(icon: Icon(Icons.payments), text: 'Payments'),
-            Tab(icon: Icon(Icons.phone_android), text: 'Customer Phones'),
-            Tab(icon: Icon(Icons.edit_note), text: 'Change Requests'),
-          ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(58),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: isDark ? Colors.white10 : Colors.black12,
+                  width: 1,
+                ),
+              ),
+            ),
+            child: TabBar(
+              controller: _tabController,
+              indicatorColor: theme.colorScheme.secondary,
+              indicatorWeight: 3,
+              indicatorSize: TabBarIndicatorSize.tab,
+              labelColor: theme.colorScheme.secondary,
+              unselectedLabelColor: isDark ? Colors.grey.shade600 : Colors.black38,
+              labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+              unselectedLabelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              dividerColor: Colors.transparent,
+              splashFactory: NoSplash.splashFactory,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
+              tabs: const [
+                Tab(
+                  height: 52,
+                  iconMargin: EdgeInsets.only(bottom: 4),
+                  icon: Icon(Icons.timeline, size: 20),
+                  text: 'Timeline',
+                ),
+                Tab(
+                  height: 52,
+                  iconMargin: EdgeInsets.only(bottom: 4),
+                  icon: Icon(Icons.payments, size: 20),
+                  text: 'Payments',
+                ),
+                Tab(
+                  height: 52,
+                  iconMargin: EdgeInsets.only(bottom: 4),
+                  icon: Icon(Icons.phone_android, size: 20),
+                  text: 'Phones',
+                ),
+                Tab(
+                  height: 52,
+                  iconMargin: EdgeInsets.only(bottom: 4),
+                  icon: Icon(Icons.edit_note, size: 20),
+                  text: 'Changes',
+                ),
+              ],
+            ),
+          ),
         ),
       ),
       body: TabBarView(
@@ -450,17 +492,20 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
         children: [
           // TAB 1: PRODUCTION TIMELINE
           SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Header Details
+                // Header Details Card
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surface,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(18),
                     border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4)),
+                    ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -468,13 +513,38 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('${b['size']} • ${(b['idol_type'] as String).toUpperCase()}', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
-                          Text(LocalizationService.formatDate(b['expected_delivery_date']), style: TextStyle(color: theme.colorScheme.secondary, fontWeight: FontWeight.bold)),
+                          Expanded(
+                            child: Text(
+                              '${b['size']} • ${(b['idol_type'] as String).toUpperCase()}',
+                              style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.secondary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: theme.colorScheme.secondary.withOpacity(0.3)),
+                            ),
+                            child: Text(
+                              LocalizationService.formatDate(b['expected_delivery_date']),
+                              style: TextStyle(color: theme.colorScheme.secondary, fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                          ),
                         ],
                       ),
                       if (b['notes'] != null && b['notes'].toString().isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Text('Crafting notes: ${b['notes']}', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.black54, fontSize: 13)),
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.secondary.withOpacity(0.06),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border(left: BorderSide(color: theme.colorScheme.secondary, width: 3)),
+                          ),
+                          child: Text('${b['notes']}', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.black54, fontSize: 13)),
+                        ),
                       ]
                     ],
                   ),
@@ -489,65 +559,109 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                   final isDone = idx < currentIdx;
                   final isCurrent = idx == currentIdx;
 
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        children: [
-                          Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: isDone
-                                  ? const Color(0xFF2ECC71)
-                                  : (isCurrent ? const Color(0xFFF39C12) : const Color(0xFF222232)),
-                              border: Border.all(color: isCurrent ? Colors.white : Colors.transparent, width: 2),
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          children: [
+                            Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: isDone
+                                    ? const Color(0xFF00C896)
+                                    : (isCurrent
+                                        ? const Color(0xFFF39C12)
+                                        : (isDark ? const Color(0xFF222238) : const Color(0xFFECEDF8))),
+                                border: isCurrent
+                                    ? Border.all(color: Colors.white, width: 2.5)
+                                    : Border.all(color: isDark ? Colors.white12 : Colors.black12, width: 1.5),
+                                boxShadow: isCurrent
+                                    ? [BoxShadow(color: const Color(0xFFF39C12).withOpacity(0.4), blurRadius: 10, spreadRadius: 1)]
+                                    : null,
+                              ),
+                              child: Center(
+                                child: isDone
+                                    ? const Icon(Icons.check, size: 16, color: Colors.white)
+                                    : Text(
+                                        '${idx + 1}',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: isCurrent ? Colors.black : (isDark ? Colors.grey : Colors.black45),
+                                        ),
+                                      ),
+                              ),
                             ),
-                            child: Center(
-                              child: isDone
-                                  ? const Icon(Icons.check, size: 16, color: Colors.white)
-                                  : Text('${idx + 1}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isCurrent ? Colors.black : Colors.grey)),
-                            ),
-                          ),
-                          if (idx < _allStages.length - 1)
-                            Container(width: 2, height: 40, color: isDone ? const Color(0xFF2ECC71) : Colors.white12),
-                        ],
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                s['en']!,
-                                style: TextStyle(
-                                  color: isCurrent ? const Color(0xFFF39C12) : (isDone ? Colors.white : Colors.grey),
-                                  fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
-                                  fontSize: 15,
+                            if (idx < _allStages.length - 1)
+                              Container(
+                                width: 2,
+                                height: 44,
+                                margin: const EdgeInsets.symmetric(vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: isDone ? const Color(0xFF00C896) : (isDark ? Colors.white10 : Colors.black12),
+                                  borderRadius: BorderRadius.circular(2),
                                 ),
                               ),
-                              if (isCurrent)
-                                const Text('Active stage at workshop', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                            ],
+                          ],
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 5, bottom: 8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  s['en']!,
+                                  style: TextStyle(
+                                    color: isCurrent
+                                        ? const Color(0xFFF39C12)
+                                        : (isDone
+                                            ? const Color(0xFF00C896)
+                                            : (isDark ? Colors.grey.shade500 : Colors.black38)),
+                                    fontWeight: isCurrent ? FontWeight.w800 : (isDone ? FontWeight.w600 : FontWeight.w500),
+                                    fontSize: 15,
+                                  ),
+                                ),
+                                if (isCurrent)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 3),
+                                    child: Text(
+                                      '⚒️ Active stage at workshop',
+                                      style: TextStyle(color: isDark ? Colors.grey.shade600 : Colors.black38, fontSize: 12),
+                                    ),
+                                  ),
+                                if (isDone)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 3),
+                                    child: Text(
+                                      '✓ Completed',
+                                      style: TextStyle(color: isDark ? Colors.grey.shade600 : Colors.black38, fontSize: 12),
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   );
                 }),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
 
                 ElevatedButton.icon(
                   onPressed: _showAdvanceStatusDialog,
-                  icon: const Icon(Icons.forward, color: Colors.white),
+                  icon: const Icon(Icons.arrow_forward, color: Colors.white),
                   label: const Text('Advance Production Stage', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFD35400),
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 4,
                   ),
                 ),
               ],
@@ -556,42 +670,36 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
 
           // TAB 2: PAYMENTS
           SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Financial Card
+                // Financial Summary Card
                 Container(
-                  padding: const EdgeInsets.all(18),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surface,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4)),
+                    ],
                   ),
                   child: Column(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Total Idol Price:', style: TextStyle(color: isDark ? Colors.grey : Colors.black54)),
-                          Text(LocalizationService.formatCurrency(total), style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
-                        ],
+                      _payRow('Total Idol Price', LocalizationService.formatCurrency(total), theme.colorScheme.onSurface, isDark),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Divider(color: isDark ? Colors.white10 : Colors.black12, height: 1),
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Total Collected (Advance + Balance):', style: TextStyle(color: isDark ? Colors.grey : Colors.black54)),
-                          Text(LocalizationService.formatCurrency(paid), style: const TextStyle(color: Color(0xFF2ECC71), fontWeight: FontWeight.bold, fontSize: 16)),
-                        ],
+                      _payRow('Total Collected', LocalizationService.formatCurrency(paid), const Color(0xFF00C896), isDark),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Divider(color: isDark ? Colors.white10 : Colors.black12, height: 1),
                       ),
-                      Divider(color: isDark ? Colors.white12 : Colors.black12, height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Remaining Balance Due:', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold)),
-                          Text(LocalizationService.formatCurrency(balance), style: TextStyle(color: balance > 0 ? const Color(0xFFE74C3C) : Colors.green, fontWeight: FontWeight.bold, fontSize: 18)),
-                        ],
-                      ),
+                      _payRow('Remaining Balance', LocalizationService.formatCurrency(balance),
+                          balance > 0 ? const Color(0xFFFF5E57) : const Color(0xFF00C896), isDark,
+                          bold: true, large: true),
                     ],
                   ),
                 ).animate().fade().slideY(begin: 0.1),
@@ -603,32 +711,68 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                     icon: const Icon(Icons.add, color: Colors.white),
                     label: const Text('Record Balance Payment', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2ECC71),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      backgroundColor: const Color(0xFF00C896),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      elevation: 3,
                     ),
                   ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
 
-                const Text('Payment History & Receipts', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 10),
+                Text(
+                  'Payment History & Receipts',
+                  style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.w800, fontSize: 16),
+                ),
+                const SizedBox(height: 12),
 
-                ...payments.map((p) => Card(
-                  color: const Color(0xFF181824),
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: ListTile(
-                    leading: Icon(
-                      p['is_advance'] == 1 ? Icons.star : Icons.check_circle,
-                      color: const Color(0xFFF39C12),
+                ...payments.map((p) => Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border(
+                      left: const BorderSide(color: Color(0xFF00C896), width: 3),
+                      top: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
+                      right: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
+                      bottom: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
                     ),
-                    title: Text(
-                      '${LocalizationService.formatCurrency(p['amount'])} via ${(p['payment_mode'] as String).toUpperCase()}',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      '${p['note'] ?? (p['is_advance'] == 1 ? 'Initial Advance' : 'Balance payment')} • ${p['payment_date']}',
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40, height: 40,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF39C12).withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          p['is_advance'] == 1 ? Icons.star_rounded : Icons.check_circle_rounded,
+                          color: const Color(0xFFF39C12), size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${LocalizationService.formatCurrency(p['amount'])} via ${(p['payment_mode'] as String).toUpperCase()}',
+                              style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              '${p['note'] ?? (p['is_advance'] == 1 ? 'Initial Advance' : 'Balance payment')}',
+                              style: TextStyle(color: isDark ? Colors.grey.shade500 : Colors.black45, fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        '${p['payment_date']}',
+                        style: TextStyle(color: isDark ? Colors.grey.shade600 : Colors.black38, fontSize: 12, fontWeight: FontWeight.w600),
+                      ),
+                    ],
                   ),
                 )),
               ],
@@ -637,43 +781,77 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
 
           // TAB 3: AUTHORIZED PHONES
           SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
-                  'Phones allowed to log in and track this order.',
-                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.secondary.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: theme.colorScheme.secondary.withOpacity(0.2)),
+                  ),
+                  child: Text(
+                    '📱 These phone numbers are authorized to log in and track this order.',
+                    style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.black54, fontSize: 13, height: 1.5),
+                  ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
 
                 ...phones.map((ph) {
                   final isBlocked = ph['is_blocked'] == 1;
-                  return Card(
-                    color: const Color(0xFF181824),
+                  return Container(
                     margin: const EdgeInsets.only(bottom: 10),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: isBlocked ? Colors.red.withOpacity(0.3) : (isDark ? Colors.white10 : Colors.black12)),
+                    ),
                     child: ListTile(
-                      leading: Icon(Icons.phone_android, color: isBlocked ? Colors.red : const Color(0xFF2ECC71)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      leading: Container(
+                        width: 42, height: 42,
+                        decoration: BoxDecoration(
+                          color: (isBlocked ? Colors.red : const Color(0xFF00C896)).withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          isBlocked ? Icons.block : Icons.phone_android,
+                          color: isBlocked ? Colors.red : const Color(0xFF00C896),
+                          size: 22,
+                        ),
+                      ),
                       title: Text(
-                        '${ph['phone_number']} (${ph['label']})',
-                        style: TextStyle(color: isBlocked ? Colors.red.shade300 : Colors.white, fontWeight: FontWeight.bold),
+                        '${ph['phone_number']}',
+                        style: TextStyle(
+                          color: isBlocked ? Colors.red.shade300 : theme.colorScheme.onSurface,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       subtitle: Text(
-                        isBlocked ? 'Blocked - Access Denied' : 'Active Access',
-                        style: TextStyle(color: isBlocked ? Colors.red : Colors.grey, fontSize: 12),
+                        '${ph['label']} • ${isBlocked ? 'Access Blocked' : 'Active Access'}',
+                        style: TextStyle(
+                          color: isBlocked ? Colors.red.shade400 : (isDark ? Colors.grey.shade500 : Colors.black45),
+                          fontSize: 12,
+                        ),
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            icon: Icon(isBlocked ? Icons.lock_open : Icons.block, color: isBlocked ? Colors.green : Colors.orange),
+                            icon: Icon(
+                              isBlocked ? Icons.lock_open_rounded : Icons.block,
+                              color: isBlocked ? const Color(0xFF00C896) : Colors.orange,
+                              size: 22,
+                            ),
                             onPressed: () async {
                               await ApiService.togglePhoneBlock(widget.bookingId, ph['id']);
                               _loadDetails();
                             },
                           ),
                           IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.redAccent),
+                            icon: const Icon(Icons.delete_rounded, color: Colors.redAccent, size: 22),
                             onPressed: () async {
                               await ApiService.removeAuthorizedPhone(widget.bookingId, ph['id']);
                               _loadDetails();
@@ -684,15 +862,16 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                     ),
                   );
                 }),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
 
                 OutlinedButton.icon(
                   onPressed: _showAddPhoneDialog,
                   icon: const Icon(Icons.add, color: Color(0xFFF39C12)),
-                  label: const Text('Authorize Another Phone', style: TextStyle(color: Color(0xFFF39C12))),
+                  label: const Text('Authorize Another Phone', style: TextStyle(color: Color(0xFFF39C12), fontWeight: FontWeight.bold)),
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFFF39C12)),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: const BorderSide(color: Color(0xFFF39C12), width: 1.5),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                 ),
               ],
@@ -701,57 +880,123 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
 
           // TAB 4: CHANGE REQUESTS & RATINGS
           SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text('Customer Design Adjustment Requests', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 10),
+                Text(
+                  'Customer Design Adjustment Requests',
+                  style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.w800, fontSize: 16),
+                ),
+                const SizedBox(height: 12),
 
                 if (crs.isEmpty)
                   Container(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(28),
                     alignment: Alignment.center,
-                    child: Text('No adjustment requests submitted.', style: TextStyle(color: Colors.grey.shade500)),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
+                    ),
+                    child: Column(
+                      children: [
+                        const Text('📋', style: TextStyle(fontSize: 32)),
+                        const SizedBox(height: 8),
+                        Text('No adjustment requests yet.', style: TextStyle(color: isDark ? Colors.grey.shade500 : Colors.black38, fontSize: 14)),
+                      ],
+                    ),
                   )
                 else
                   ...crs.map((cr) {
                     final status = cr['status'] as String;
-                    return Card(
-                      color: theme.colorScheme.surface,
+                    final statusColor = status == 'accepted'
+                        ? const Color(0xFF00C896)
+                        : (status == 'rejected' ? const Color(0xFFFF5E57) : const Color(0xFFF39C12));
+                    final statusIcon = status == 'accepted' ? '🟢' : (status == 'rejected' ? '🔴' : '🟡');
+                    return Container(
                       margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border(
+                          left: BorderSide(color: statusColor, width: 3),
+                          top: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
+                          right: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
+                          bottom: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
+                        ),
+                      ),
                       child: Padding(
-                        padding: const EdgeInsets.all(14),
+                        padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text((cr['change_type'] as String).toUpperCase(), style: TextStyle(color: theme.colorScheme.secondary, fontWeight: FontWeight.bold)),
-                                Text(status.toUpperCase(), style: TextStyle(color: status == 'accepted' ? Colors.green : (status == 'rejected' ? Colors.red : Colors.orange), fontWeight: FontWeight.bold, fontSize: 12)),
+                                Expanded(
+                                  child: Text(
+                                    (cr['change_type'] as String).replaceAll('_', ' ').toUpperCase(),
+                                    style: TextStyle(color: theme.colorScheme.secondary, fontWeight: FontWeight.bold, fontSize: 13),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: statusColor.withOpacity(0.12),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    '$statusIcon ${status.toUpperCase()}',
+                                    style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 11),
+                                  ),
+                                ),
                               ],
                             ),
-                            const SizedBox(height: 6),
-                            Text(cr['description'] ?? '', style: TextStyle(color: theme.colorScheme.onSurface)),
+                            const SizedBox(height: 8),
+                            Text(cr['description'] ?? '', style: TextStyle(color: theme.colorScheme.onSurface, height: 1.5)),
                             if (cr['murtikar_response'] != null) ...[
-                              const SizedBox(height: 8),
-                              Text('Your response: ${cr['murtikar_response']}', style: TextStyle(color: isDark ? Colors.grey : Colors.black54, fontSize: 12)),
+                              const SizedBox(height: 10),
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.03),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
+                                ),
+                                child: Text(
+                                  'Your reply: ${cr['murtikar_response']}',
+                                  style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.black54, fontSize: 12, height: 1.4),
+                                ),
+                              ),
                             ],
                             if (status == 'pending') ...[
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 14),
                               Row(
                                 children: [
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                                    onPressed: () => _showChangeRequestResponseDialog(cr['id'], 'accepted'),
-                                    child: const Text('Accept', style: TextStyle(color: Colors.white)),
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFF00C896),
+                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                      ),
+                                      onPressed: () => _showChangeRequestResponseDialog(cr['id'], 'accepted'),
+                                      child: const Text('✓ Accept', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    ),
                                   ),
-                                  const SizedBox(width: 8),
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                                    onPressed: () => _showChangeRequestResponseDialog(cr['id'], 'rejected'),
-                                    child: const Text('Reject', style: TextStyle(color: Colors.white)),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFFFF5E57),
+                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                      ),
+                                      onPressed: () => _showChangeRequestResponseDialog(cr['id'], 'rejected'),
+                                      child: const Text('✕ Reject', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -774,6 +1019,32 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
         icon: const Icon(Icons.chat, color: Colors.white),
         label: const Text('Customer Chat', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
+    );
+  }
+
+  // Helper: a payment summary row
+  Widget _payRow(String label, String value, Color valueColor, bool isDark,
+      {bool bold = false, bool large = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: isDark ? Colors.grey.shade400 : Colors.black54,
+            fontSize: bold ? 15 : 14,
+            fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            color: valueColor,
+            fontSize: large ? 20 : 15,
+            fontWeight: bold ? FontWeight.w900 : FontWeight.w700,
+          ),
+        ),
+      ],
     );
   }
 }
