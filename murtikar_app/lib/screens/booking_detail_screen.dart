@@ -70,37 +70,58 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) {
+          final theme = Theme.of(context);
+          final isDark = theme.brightness == Brightness.dark;
           return AlertDialog(
-            backgroundColor: const Color(0xFF1E1E2E),
-            title: const Text('Advance Production Stage', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            backgroundColor: isDark ? const Color(0xFF1E1E2E) : Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: theme.primaryColor.withOpacity(0.12), shape: BoxShape.circle),
+                  child: Icon(Icons.rocket_launch_rounded, color: theme.primaryColor, size: 20),
+                ),
+                const SizedBox(width: 10),
+                Text('Advance Stage', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18)),
+              ],
+            ),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   DropdownButtonFormField<String>(
                     value: selectedStage,
-                    dropdownColor: const Color(0xFF222232),
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(labelText: 'Target Stage', labelStyle: TextStyle(color: Colors.grey)),
+                    dropdownColor: isDark ? const Color(0xFF222232) : Colors.white,
+                    style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 14),
+                    decoration: InputDecoration(
+                      labelText: 'Target Stage',
+                      labelStyle: TextStyle(color: isDark ? Colors.grey : Colors.black54),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                     items: _allStages.map((s) => DropdownMenuItem(value: s['key'], child: Text(s['en']!))).toList(),
                     onChanged: (v) => selectedStage = v!,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   TextField(
                     controller: noteCtrl,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
+                    style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 14),
+                    decoration: InputDecoration(
                       labelText: 'Crafting Note (Visible to Customer)',
-                      labelStyle: TextStyle(color: Colors.grey),
+                      labelStyle: TextStyle(color: isDark ? Colors.grey : Colors.black54),
                       hintText: 'e.g. Clay sculpting complete',
-                      hintStyle: TextStyle(color: Colors.grey, fontSize: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                   const SizedBox(height: 16),
                   Row(
                     children: [
                       ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF222232)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isDark ? const Color(0xFF222232) : Colors.grey.shade200,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
                         onPressed: () async {
                           final picker = ImagePicker();
                           final img = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
@@ -108,26 +129,24 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                             setDialogState(() => selectedImagePath = img.path);
                           }
                         },
-                        icon: const Icon(Icons.photo_library, color: Color(0xFFF39C12)),
-                        label: const Text('Attach Photo', style: TextStyle(color: Colors.white)),
+                        icon: const Icon(Icons.photo_library_rounded, color: Color(0xFFF39C12), size: 18),
+                        label: Text('Attach Photo', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.w600, fontSize: 13)),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 10),
                       if (selectedImagePath != null)
-                        const Icon(Icons.check_circle, color: Colors.green),
+                        const Icon(Icons.check_circle_rounded, color: Color(0xFF2ECC71), size: 22),
                     ],
                   ),
-                  if (selectedImagePath != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text('Image selected', style: const TextStyle(color: Colors.green, fontSize: 12)),
-                    )
                 ],
               ),
             ),
             actions: [
               TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel', style: TextStyle(color: Colors.grey))),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD35400)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.primaryColor,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
                 onPressed: () async {
                   try {
                     await ApiService.updateStatus(widget.bookingId, selectedStage, note: noteCtrl.text.trim(), imagePath: selectedImagePath);
@@ -138,7 +157,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
                   }
                 },
-                child: const Text('Update Stage', style: TextStyle(color: Colors.white)),
+                child: const Text('Update Stage', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
             ],
           );
@@ -155,27 +174,53 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E2E),
-        title: const Text('Record Balance Payment', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      builder: (ctx) {
+        final theme = Theme.of(context);
+        final isDark = theme.brightness == Brightness.dark;
+        return AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1E1E2E) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(color: const Color(0xFF2ECC71).withOpacity(0.12), shape: BoxShape.circle),
+              child: const Icon(Icons.payments_rounded, color: Color(0xFF2ECC71), size: 20),
+            ),
+            const SizedBox(width: 10),
+            Text('Record Payment', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18)),
+          ],
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Remaining Balance: ${LocalizationService.formatCurrency(balance)}', style: const TextStyle(color: Color(0xFFF39C12), fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(color: const Color(0xFFF39C12).withOpacity(0.12), borderRadius: BorderRadius.circular(10)),
+              child: Text('Remaining Balance: ${LocalizationService.formatCurrency(balance)}', style: const TextStyle(color: Color(0xFFF39C12), fontWeight: FontWeight.bold, fontSize: 13)),
+            ),
+            const SizedBox(height: 14),
             TextField(
               controller: amountCtrl,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 14),
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Amount (₹) *', labelStyle: TextStyle(color: Colors.grey)),
+              decoration: InputDecoration(
+                labelText: 'Amount (₹) *',
+                labelStyle: TextStyle(color: isDark ? Colors.grey : Colors.black54),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             DropdownButtonFormField<String>(
               value: paymentMode,
-              dropdownColor: const Color(0xFF222232),
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(labelText: 'Payment Mode', labelStyle: TextStyle(color: Colors.grey)),
+              dropdownColor: isDark ? const Color(0xFF222232) : Colors.white,
+              style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 14),
+              decoration: InputDecoration(
+                labelText: 'Payment Mode',
+                labelStyle: TextStyle(color: isDark ? Colors.grey : Colors.black54),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
               items: const [
                 DropdownMenuItem(value: 'cash', child: Text('Cash (रोख)')),
                 DropdownMenuItem(value: 'upi', child: Text('UPI (GPay / PhonePe)')),
@@ -184,18 +229,25 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
               ],
               onChanged: (v) => paymentMode = v!,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             TextField(
               controller: noteCtrl,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(labelText: 'Receipt Note', labelStyle: TextStyle(color: Colors.grey)),
+              style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 14),
+              decoration: InputDecoration(
+                labelText: 'Receipt Note',
+                labelStyle: TextStyle(color: isDark ? Colors.grey : Colors.black54),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
           ],
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel', style: TextStyle(color: Colors.grey))),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2ECC71)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF2ECC71),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
             onPressed: () async {
               final amt = double.tryParse(amountCtrl.text.trim()) ?? 0;
               if (amt <= 0) return;
@@ -212,8 +264,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
             child: const Text('Save Payment', style: TextStyle(color: Colors.white)),
           ),
         ],
-      ),
-    );
+      );
+    },
+  );
   }
 
   void _showAddPhoneDialog() {
@@ -285,24 +338,60 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E2E),
-        title: Text(actionStatus == 'accepted' ? 'Accept Request' : 'Reject Request', style: TextStyle(color: actionStatus == 'accepted' ? Colors.green : Colors.redAccent, fontWeight: FontWeight.bold)),
+      builder: (ctx) {
+        final theme = Theme.of(context);
+        final isDark = theme.brightness == Brightness.dark;
+        return AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1E1E2E) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: (actionStatus == 'accepted' ? const Color(0xFF2ECC71) : const Color(0xFFE74C3C)).withOpacity(0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                actionStatus == 'accepted' ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                color: actionStatus == 'accepted' ? const Color(0xFF2ECC71) : const Color(0xFFE74C3C),
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              actionStatus == 'accepted' ? 'Accept Request' : 'Reject Request',
+              style: TextStyle(
+                color: actionStatus == 'accepted' ? const Color(0xFF2ECC71) : const Color(0xFFE74C3C),
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: noteCtrl,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(labelText: 'Response Note', labelStyle: TextStyle(color: Colors.grey)),
+              style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 14),
+              decoration: InputDecoration(
+                labelText: 'Response Note (Sent to customer)',
+                labelStyle: TextStyle(color: isDark ? Colors.grey : Colors.black54),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
             if (actionStatus == 'accepted') ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 14),
               TextField(
                 controller: chargeCtrl,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 14),
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Extra Charge (₹)', labelStyle: TextStyle(color: Colors.grey)),
+                decoration: InputDecoration(
+                  labelText: 'Extra Charge (₹)',
+                  labelStyle: TextStyle(color: isDark ? Colors.grey : Colors.black54),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
               ),
             ]
           ],
@@ -310,7 +399,10 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel', style: TextStyle(color: Colors.grey))),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: actionStatus == 'accepted' ? Colors.green : Colors.redAccent),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: actionStatus == 'accepted' ? const Color(0xFF2ECC71) : const Color(0xFFE74C3C),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
             onPressed: () async {
               Navigator.pop(ctx);
               final charge = double.tryParse(chargeCtrl.text) ?? 0.0;
@@ -322,11 +414,12 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
               }
             },
-            child: const Text('Submit', style: TextStyle(color: Colors.white)),
+            child: const Text('Submit', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
-      ),
-    );
+      );
+    },
+  );
   }
 
   void _showDeleteConfirmation() {

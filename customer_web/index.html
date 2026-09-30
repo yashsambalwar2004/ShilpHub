@@ -716,6 +716,52 @@
       document.getElementById('themeToggleBtn').innerText = savedTheme === 'dark' ? '☀️' : '🌙';
     });
 
+    function showToast(message, type = 'info', duration = 4500) {
+      let container = document.getElementById('toastContainer');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.style.cssText = 'position:fixed; top:24px; right:24px; z-index:10000; display:flex; flex-direction:column; gap:10px; pointer-events:none; max-width:90vw; width:380px;';
+        document.body.appendChild(container);
+      }
+      
+      const toast = document.createElement('div');
+      const borderColors = {
+        success: 'rgba(0, 200, 150, 0.5)',
+        danger: 'rgba(255, 94, 87, 0.5)',
+        warning: 'rgba(243, 156, 18, 0.5)',
+        info: 'rgba(79, 70, 229, 0.5)'
+      };
+      const icons = {
+        success: '✅',
+        danger: '⚠️',
+        warning: '🔔',
+        info: '💡'
+      };
+
+      toast.style.cssText = `
+        pointer-events:auto; display:flex; align-items:center; gap:12px; padding:14px 18px;
+        border-radius:16px; background:var(--surface-elevated); border:1.5px solid ${borderColors[type] || borderColors.info};
+        color:var(--text); box-shadow:0 12px 36px rgba(0,0,0,0.4); backdrop-filter:blur(16px);
+        font-size:14px; font-weight:600; opacity:0; transform:translateY(-12px) scale(0.96);
+        transition:all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      `;
+      
+      toast.innerHTML = `<span style="font-size:20px;">${icons[type] || '💡'}</span><div style="flex:1; line-height:1.4;">${message}</div>`;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0) scale(1)';
+      });
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-10px) scale(0.95)';
+        setTimeout(() => toast.remove(), 300);
+      }, duration);
+    }
+
     let currentLang = 'en';
     let customerToken = localStorage.getItem('murtitrack_customer_jwt');
     let cachedBookingData = null;
@@ -871,7 +917,8 @@
             if (cr.status !== 'pending') {
               if (seenCrs[cr.id] !== cr.status) {
                 // Found a status update we haven't alerted the user about yet
-                alert(`Update: Your change request for '${cr.change_type}' was ${cr.status.toUpperCase()} by the artisan.`);
+                const isApproved = cr.status === 'accepted';
+                showToast(`🔔 Update: Your adjustment for '${cr.change_type.replace(/_/g, ' ')}' was <strong>${cr.status.toUpperCase()}</strong> by the artisan.`, isApproved ? 'success' : 'danger', 6000);
                 seenCrs[cr.id] = cr.status;
                 newAlert = true;
               }
@@ -1063,7 +1110,7 @@
         });
         loadChatMessages();
       } catch(e) {
-        alert('Failed to send message');
+        showToast('Failed to send message. Please check your connection.', 'danger');
       }
     }
 
@@ -1071,7 +1118,7 @@
       const file = input.files[0];
       if (!file) return;
       if (file.size > 5 * 1024 * 1024) {
-        alert('Image is too large. Please choose an image under 5 MB.');
+        showToast('Image is too large. Please choose a photo under 5 MB.', 'warning');
         input.value = '';
         return;
       }
