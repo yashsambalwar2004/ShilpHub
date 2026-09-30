@@ -50,17 +50,24 @@
     .card.glow { border-color: rgba(243, 156, 18, 0.4); box-shadow: 0 10px 40px var(--gold-glow); }
 
     /* Login View */
-    .hero-badge { display: inline-block; background: rgba(211, 84, 0, 0.2); border: 1px solid var(--primary); color: var(--gold); padding: 4px 14px; border-radius: 30px; font-size: 12px; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
-    .form-group { margin-bottom: 18px; text-align: left; }
-    .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); }
-    .form-control { width: 100%; background: var(--surface-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; color: var(--text); font-size: 16px; outline: none; transition: border-color 0.2s, background-color 0.3s, color 0.3s; }
-    .form-control:focus { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-glow); }
+    .hero-badge { display: inline-block; background: rgba(211, 84, 0, 0.15); border: 1px solid var(--primary); color: var(--gold); padding: 8px 20px; border-radius: 30px; font-size: 13px; font-weight: 800; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 0 20px var(--gold-glow); animation: breathe 3s infinite ease-in-out; }
+    @keyframes breathe { 0%, 100% { box-shadow: 0 0 15px var(--gold-glow); transform: translateY(0); } 50% { box-shadow: 0 0 30px rgba(243, 156, 18, 0.5); transform: translateY(-2px); } }
     
-    .btn { display: inline-flex; justify-content: center; align-items: center; gap: 8px; width: 100%; padding: 14px 24px; border-radius: 12px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-decoration: none; }
-    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; box-shadow: 0 4px 15px rgba(211, 84, 0, 0.4); }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(211, 84, 0, 0.6); }
-    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-    .btn-outline:hover { background: rgba(255,255,255,0.05); }
+    .form-group { margin-bottom: 22px; text-align: left; position: relative; }
+    .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .form-control { width: 100%; background: var(--surface-elevated); border: 2px solid transparent; border-radius: 16px; padding: 16px 20px; color: var(--text); font-size: 16px; font-weight: 500; outline: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+    .form-control:focus { border-color: var(--gold); background: var(--surface); box-shadow: 0 0 0 4px var(--gold-glow), inset 0 2px 4px rgba(0,0,0,0.05); transform: translateY(-2px); }
+    .form-control::placeholder { color: rgba(155, 161, 176, 0.5); }
+    
+    .btn { display: inline-flex; justify-content: center; align-items: center; gap: 10px; width: 100%; padding: 16px 24px; border-radius: 16px; border: none; font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-decoration: none; letter-spacing: 0.5px; }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--gold)); color: white; box-shadow: 0 8px 25px rgba(211, 84, 0, 0.3); background-size: 200% auto; transition: 0.5s; }
+    .btn-primary:hover { background-position: right center; transform: translateY(-3px) scale(1.02); box-shadow: 0 15px 30px rgba(211, 84, 0, 0.4); }
+    .btn-primary:active { transform: translateY(1px); }
+    .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: var(--text-muted); }
+
+    .login-wrapper { padding: 48px 36px; border-radius: 28px; background: rgba(24, 24, 36, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); }
+    [data-theme="light"] .login-wrapper { background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(0,0,0,0.08); }
 
     /* Tracking View */
     .order-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
@@ -135,10 +142,10 @@
   <div class="container">
 
     <!-- LOGIN SCREEN -->
-    <div id="loginSection" class="card glow" style="text-align: center;">
+    <div id="loginSection" class="card glow login-wrapper" style="text-align: center;">
       <span class="hero-badge" id="txtBlessing">॥ श्री गणेशाय नमः ॥</span>
-      <h2 style="font-size: 26px; font-weight: 800; margin-bottom: 8px;" id="txtLoginTitle">Track Your Idol Order</h2>
-      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;" id="txtLoginSubtitle">Enter your booking details provided on your workshop token slip.</p>
+      <h2 style="font-size: 32px; font-weight: 800; margin-bottom: 12px; color: var(--text); letter-spacing: -0.5px;" id="txtLoginTitle">Track Your Idol Order</h2>
+      <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 32px; line-height: 1.6;" id="txtLoginSubtitle">Enter your booking details provided on your workshop token slip.</p>
 
       <div id="loginAlert" class="alert alert-danger"></div>
 
@@ -158,8 +165,8 @@
           <input type="password" id="inpPin" class="form-control" placeholder="4-6 digit security PIN" required>
         </div>
 
-        <button type="submit" id="btnTrackOrder" class="btn btn-primary" style="margin-top: 10px;">
-          <span>🔍</span> <span id="txtBtnTrack">View Order Status</span>
+        <button type="submit" id="btnTrackOrder" class="btn btn-primary" style="margin-top: 20px;">
+          <span style="font-size: 20px;">✨</span> <span id="txtBtnTrack">View Live Status</span>
         </button>
       </form>
     </div>

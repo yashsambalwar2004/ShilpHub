@@ -252,16 +252,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Card Container
                 Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: isDark ? Colors.white.withOpacity(0.1) : Colors.black12),
+                    color: isDark ? const Color(0xFF1E1E2C) : Colors.white,
+                    borderRadius: BorderRadius.circular(32),
                     boxShadow: [
                       BoxShadow(
-                        color: isDark ? Colors.black.withOpacity(0.5) : Colors.black.withOpacity(0.1),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
+                        color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                        blurRadius: 24,
+                        offset: const Offset(0, 12),
                       )
                     ],
                   ),
@@ -271,143 +270,180 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (_errorMessage != null)
                         Container(
                           padding: const EdgeInsets.all(12),
-                          margin: const EdgeInsets.only(bottom: 16),
+                          margin: const EdgeInsets.only(bottom: 20),
                           decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.2),
-                            border: Border.all(color: Colors.red.shade400),
-                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.red.withOpacity(0.1),
+                            border: Border.all(color: Colors.red.shade200),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             _errorMessage!,
-                            style: const TextStyle(color: Color(0xFFFF7675), fontSize: 13),
+                            style: TextStyle(color: isDark ? Colors.red.shade300 : Colors.red.shade700, fontSize: 13),
                           ),
                         ),
 
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () => setState(() => _isCustomer = false),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _isCustomer ? (isDark ? const Color(0xFF222232) : Colors.grey.shade300) : theme.primaryColor,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF222232) : Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => setState(() => _isCustomer = false),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  decoration: BoxDecoration(
+                                    color: !_isCustomer ? theme.primaryColor : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: !_isCustomer ? [BoxShadow(color: theme.primaryColor.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 2))] : [],
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Artisan',
+                                      style: TextStyle(
+                                        color: !_isCustomer ? Colors.white : (isDark ? Colors.grey : Colors.black54),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                              child: Text('Artisan', style: TextStyle(color: !_isCustomer || isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.bold)),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () => setState(() => _isCustomer = true),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _isCustomer ? theme.primaryColor : (isDark ? const Color(0xFF222232) : Colors.grey.shade300),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => setState(() => _isCustomer = true),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  decoration: BoxDecoration(
+                                    color: _isCustomer ? theme.primaryColor : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: _isCustomer ? [BoxShadow(color: theme.primaryColor.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 2))] : [],
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Customer',
+                                      style: TextStyle(
+                                        color: _isCustomer ? Colors.white : (isDark ? Colors.grey : Colors.black54),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                              child: Text('Customer', style: TextStyle(color: _isCustomer || isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.bold)),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 24),
 
                       if (_isCustomer) ...[
                         Text(
                           'Booking / Bill Number',
-                          style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w600),
+                          style: TextStyle(color: isDark ? Colors.grey : Colors.black54, fontSize: 13, fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 6),
                         TextField(
                           controller: _bookingNoController,
-                          style: const TextStyle(color: Colors.white),
+                          style: TextStyle(color: theme.colorScheme.onSurface),
                           decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.receipt, color: Color(0xFFD35400), size: 20),
+                            prefixIcon: Icon(Icons.receipt_rounded, color: theme.primaryColor, size: 20),
                             hintText: 'Enter Booking Number',
-                            hintStyle: TextStyle(color: Colors.grey.shade600),
+                            hintStyle: TextStyle(color: isDark ? Colors.grey.shade600 : Colors.black38),
                             filled: true,
-                            fillColor: const Color(0xFF222232),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                            fillColor: isDark ? const Color(0xFF222232) : Colors.grey.shade100,
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: theme.primaryColor.withOpacity(0.5), width: 2)),
                           ),
                         ),
                         const SizedBox(height: 18),
                         Text(
                           'Registered Mobile',
-                          style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w600),
+                          style: TextStyle(color: isDark ? Colors.grey : Colors.black54, fontSize: 13, fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 6),
                         TextField(
                           controller: _custPhoneController,
-                          style: const TextStyle(color: Colors.white),
+                          style: TextStyle(color: theme.colorScheme.onSurface),
                           keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.phone, color: Color(0xFFD35400), size: 20),
+                            prefixIcon: Icon(Icons.phone_rounded, color: theme.primaryColor, size: 20),
                             hintText: '10-digit mobile number',
-                            hintStyle: TextStyle(color: Colors.grey.shade600),
+                            hintStyle: TextStyle(color: isDark ? Colors.grey.shade600 : Colors.black38),
                             filled: true,
-                            fillColor: const Color(0xFF222232),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                            fillColor: isDark ? const Color(0xFF222232) : Colors.grey.shade100,
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: theme.primaryColor.withOpacity(0.5), width: 2)),
                           ),
                         ),
                         const SizedBox(height: 18),
                         Text(
                           'Password / PIN',
-                          style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w600),
+                          style: TextStyle(color: isDark ? Colors.grey : Colors.black54, fontSize: 13, fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 6),
                         TextField(
                           controller: _credentialController,
-                          style: const TextStyle(color: Colors.white),
+                          style: TextStyle(color: theme.colorScheme.onSurface),
                           obscureText: true,
                           decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.lock, color: Color(0xFFD35400), size: 20),
+                            prefixIcon: Icon(Icons.lock_rounded, color: theme.primaryColor, size: 20),
                             hintText: 'Enter password or PIN',
-                            hintStyle: TextStyle(color: Colors.grey.shade600),
+                            hintStyle: TextStyle(color: isDark ? Colors.grey.shade600 : Colors.black38),
                             filled: true,
-                            fillColor: const Color(0xFF222232),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                            fillColor: isDark ? const Color(0xFF222232) : Colors.grey.shade100,
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: theme.primaryColor.withOpacity(0.5), width: 2)),
                           ),
                         ),
                         const SizedBox(height: 24),
                       ] else ...[
                         Text(
                           loc.t('phone_label'),
-                        style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 6),
-                      TextField(
-                        controller: _phoneController,
-                        style: const TextStyle(color: Colors.white),
-                        keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.phone, color: Color(0xFFD35400), size: 20),
-                          hintText: '10-digit mobile number',
-                          hintStyle: TextStyle(color: Colors.grey.shade600),
-                          filled: true,
-                          fillColor: const Color(0xFF222232),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                          style: TextStyle(color: isDark ? Colors.grey : Colors.black54, fontSize: 13, fontWeight: FontWeight.w600),
                         ),
-                      ),
-                      const SizedBox(height: 18),
+                        const SizedBox(height: 6),
+                        TextField(
+                          controller: _phoneController,
+                          style: TextStyle(color: theme.colorScheme.onSurface),
+                          keyboardType: TextInputType.phone,
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.phone_rounded, color: theme.primaryColor, size: 20),
+                            hintText: '10-digit mobile number',
+                            hintStyle: TextStyle(color: isDark ? Colors.grey.shade600 : Colors.black38),
+                            filled: true,
+                            fillColor: isDark ? const Color(0xFF222232) : Colors.grey.shade100,
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: theme.primaryColor.withOpacity(0.5), width: 2)),
+                          ),
+                        ),
+                        const SizedBox(height: 18),
 
-                      Text(
-                        loc.t('password_label'),
-                        style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 6),
-                      TextField(
-                        controller: _passController,
-                        style: const TextStyle(color: Colors.white),
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.lock, color: Color(0xFFD35400), size: 20),
-                          hintText: 'Enter password',
-                          hintStyle: TextStyle(color: Colors.grey.shade600),
-                          filled: true,
-                          fillColor: const Color(0xFF222232),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                        Text(
+                          loc.t('password_label'),
+                          style: TextStyle(color: isDark ? Colors.grey : Colors.black54, fontSize: 13, fontWeight: FontWeight.w600),
                         ),
-                      ),
+                        const SizedBox(height: 6),
+                        TextField(
+                          controller: _passController,
+                          style: TextStyle(color: theme.colorScheme.onSurface),
+                          obscureText: true,
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.lock_rounded, color: theme.primaryColor, size: 20),
+                            hintText: 'Enter password',
+                            hintStyle: TextStyle(color: isDark ? Colors.grey.shade600 : Colors.black38),
+                            filled: true,
+                            fillColor: isDark ? const Color(0xFF222232) : Colors.grey.shade100,
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: theme.primaryColor.withOpacity(0.5), width: 2)),
+                          ),
+                        ),
                       ],
                       const SizedBox(height: 24),
 
