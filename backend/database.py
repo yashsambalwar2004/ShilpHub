@@ -59,13 +59,16 @@ class PgCursorWrapper:
 class PgConnectionWrapper:
     def __init__(self, conn):
         self.conn = conn
-        
+
     def cursor(self):
         return PgCursorWrapper(self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor))
-        
+
+    def execute(self, query, params=None):
+        return self.cursor().execute(query, params)
+
     def commit(self):
         self.conn.commit()
-        
+
     def close(self):
         self.conn.close()
 
