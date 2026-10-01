@@ -1220,7 +1220,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                           ],
                         ),
                       ),
-                    ).animate().fade().slideY(begin: 0.1);
+                    );
                   }),
               ],
             ),
