@@ -624,6 +624,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             LocalizationService.formatCurrency(totalRev),
                             isDark ? Colors.white : Colors.black,
                             isDark ? const Color(0xFF1E1E2E) : Colors.blue.shade50,
+                            isDark,
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -633,6 +634,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             LocalizationService.formatCurrency(totalReceived),
                             const Color(0xFF2ECC71),
                             isDark ? const Color(0xFF162E20) : Colors.green.shade50,
+                            isDark,
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -640,8 +642,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: _buildMetricCard(
                             loc.t('pending_balance'),
                             LocalizationService.formatCurrency(totalPending),
-                            const Color(0xFFE74C3C),
+                            totalPending > 0 ? const Color(0xFFE74C3C) : (isDark ? Colors.grey : Colors.black54),
                             isDark ? const Color(0xFF2E1616) : Colors.red.shade50,
+                            isDark,
                           ),
                         ),
                       ],
@@ -729,9 +732,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           children: [
                             const Text('📦', style: TextStyle(fontSize: 48)),
                             const SizedBox(height: 12),
-                            Text('No bookings found.', style: TextStyle(color: Colors.grey.shade400, fontSize: 16)),
+                            Text('No bookings found.', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.black54, fontSize: 16)),
                             const SizedBox(height: 6),
-                            const Text('Tap "+ New Booking" below to register a customer.', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                            Text('Tap "+ New Booking" below to register a customer.', style: TextStyle(color: isDark ? Colors.grey : Colors.black45, fontSize: 13)),
                           ],
                         ),
                       )
@@ -750,11 +753,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           final balance = (b['balance_due'] as num?) ?? 0;
 
                           return Card(
-                            color: const Color(0xFF181824),
+                            color: theme.cardTheme.color,
                             margin: const EdgeInsets.only(bottom: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
-                              side: BorderSide(color: Colors.white.withOpacity(0.08)),
+                              side: BorderSide(color: isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.05)),
                             ),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(16),
@@ -815,7 +818,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text('👤 ${b['customer_name']}', style: TextStyle(color: Colors.grey.shade400, fontSize: 13)),
+                                        Text('👤 ${b['customer_name']}', style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.black54, fontSize: 13)),
                                         Text('📅 ${LocalizationService.formatDate(b['expected_delivery_date'])}', style: const TextStyle(color: Color(0xFFF39C12), fontSize: 12, fontWeight: FontWeight.bold)),
                                       ],
                                     ),
@@ -838,7 +841,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text('Paid: ${LocalizationService.formatCurrency(paid)}', style: const TextStyle(color: Color(0xFF2ECC71), fontSize: 12, fontWeight: FontWeight.bold)),
-                                        Text('Balance: ${LocalizationService.formatCurrency(balance)}', style: TextStyle(color: balance > 0 ? const Color(0xFFE74C3C) : Colors.grey, fontSize: 12, fontWeight: FontWeight.bold)),
+                                        Text('Balance: ${LocalizationService.formatCurrency(balance)}', style: TextStyle(color: balance > 0 ? const Color(0xFFE74C3C) : (isDark ? Colors.grey : Colors.black54), fontSize: 12, fontWeight: FontWeight.bold)),
                                         Text('Total: ${LocalizationService.formatCurrency(total)}', style: TextStyle(color: isDark ? Colors.white70 : Colors.black54, fontSize: 12)),
                                       ],
                                     ),
@@ -868,18 +871,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildMetricCard(String title, String value, Color textColor, Color bgColor) {
+  Widget _buildMetricCard(String title, String value, Color textColor, Color bgColor, bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        border: Border.all(color: isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(fontSize: 10, color: Colors.grey.shade400, fontWeight: FontWeight.w600)),
+          Text(title, style: TextStyle(fontSize: 10, color: isDark ? Colors.grey.shade400 : Colors.black54, fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
           FittedBox(
             fit: BoxFit.scaleDown,
