@@ -1080,147 +1080,160 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                   )
                 else
                   ...crs.map((cr) {
-                    final status = cr['status'] as String;
-                    final statusColor = status == 'accepted'
-                        ? const Color(0xFF00C896)
-                        : (status == 'rejected' ? const Color(0xFFFF5E57) : const Color(0xFFF39C12));
-                    final statusIcon = status == 'accepted' ? '🟢' : (status == 'rejected' ? '🔴' : '🟡');
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surface,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border(
-                          left: BorderSide(color: statusColor, width: 3),
-                          top: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
-                          right: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
-                          bottom: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
+                    try {
+                      final status = cr['status'] as String? ?? 'pending';
+                      final changeType = cr['change_type'] as String? ?? 'Unknown';
+                      final statusColor = status == 'accepted'
+                          ? const Color(0xFF00C896)
+                          : (status == 'rejected' ? const Color(0xFFFF5E57) : const Color(0xFFF39C12));
+                      final statusIcon = status == 'accepted' ? '🟢' : (status == 'rejected' ? '🔴' : '🟡');
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border(
+                            left: BorderSide(color: statusColor, width: 3),
+                            top: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
+                            right: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
+                            bottom: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
+                          ),
                         ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    (cr['change_type'] as String).replaceAll('_', ' ').toUpperCase(),
-                                    style: TextStyle(color: theme.colorScheme.secondary, fontWeight: FontWeight.bold, fontSize: 13),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: statusColor.withOpacity(0.12),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    '$statusIcon ${status.toUpperCase()}',
-                                    style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 11),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(cr['description'] ?? '', style: TextStyle(color: theme.colorScheme.onSurface, height: 1.5)),
-                            if (cr['photo_url'] != null && (cr['photo_url'] as String).isNotEmpty) ...[
-                              const SizedBox(height: 10),
-                              GestureDetector(
-                                onTap: () {
-                                  final serverHost = ApiService.baseUrl.replaceAll('/api', '');
-                                  final imgUrl = cr['photo_url'].toString().startsWith('http')
-                                      ? cr['photo_url'].toString()
-                                      : '$serverHost${cr['photo_url']}';
-                                  _showFullImageDialog(imgUrl);
-                                },
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Stack(
-                                    alignment: Alignment.bottomRight,
-                                    children: [
-                                      Image.network(
-                                        cr['photo_url'].toString().startsWith('http')
-                                            ? cr['photo_url'].toString()
-                                            : '${ApiService.baseUrl.replaceAll('/api', '')}${cr['photo_url']}',
-                                        height: 180,
-                                        width: double.infinity,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                                      ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                        margin: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.65),
-                                          borderRadius: BorderRadius.circular(20),
-                                        ),
-                                        child: const Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(Icons.zoom_in_rounded, color: Colors.white, size: 14),
-                                            SizedBox(width: 4),
-                                            Text('Tap to view', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                            if (cr['murtikar_response'] != null) ...[
-                              const SizedBox(height: 10),
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.03),
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
-                                ),
-                                child: Text(
-                                  'Your reply: ${cr['murtikar_response']}',
-                                  style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.black54, fontSize: 12, height: 1.4),
-                                ),
-                              ),
-                            ],
-                            if (status == 'pending') ...[
-                              const SizedBox(height: 14),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF00C896),
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                      ),
-                                      onPressed: () => _showChangeRequestResponseDialog(cr['id'], 'accepted'),
-                                      child: const Text('✓ Accept', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    child: Text(
+                                      changeType.replaceAll('_', ' ').toUpperCase(),
+                                      style: TextStyle(color: theme.colorScheme.secondary, fontWeight: FontWeight.bold, fontSize: 13),
                                     ),
                                   ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFFFF5E57),
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                      ),
-                                      onPressed: () => _showChangeRequestResponseDialog(cr['id'], 'rejected'),
-                                      child: const Text('✕ Reject', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: statusColor.withOpacity(0.12),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      '$statusIcon ${status.toUpperCase()}',
+                                      style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 11),
                                     ),
                                   ),
                                 ],
                               ),
+                              const SizedBox(height: 8),
+                              Text(cr['description']?.toString() ?? '', style: TextStyle(color: theme.colorScheme.onSurface, height: 1.5)),
+                              if (cr['photo_url'] != null && cr['photo_url'].toString().isNotEmpty) ...[
+                                const SizedBox(height: 10),
+                                GestureDetector(
+                                  onTap: () {
+                                    final serverHost = ApiService.baseUrl.replaceAll('/api', '');
+                                    final imgUrl = cr['photo_url'].toString().startsWith('http')
+                                        ? cr['photo_url'].toString()
+                                        : '$serverHost${cr['photo_url']}';
+                                    _showFullImageDialog(imgUrl);
+                                  },
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Stack(
+                                      alignment: Alignment.bottomRight,
+                                      children: [
+                                        Image.network(
+                                          cr['photo_url'].toString().startsWith('http')
+                                              ? cr['photo_url'].toString()
+                                              : '${ApiService.baseUrl.replaceAll('/api', '')}${cr['photo_url']}',
+                                          height: 180,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                                        ),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                          margin: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withOpacity(0.65),
+                                            borderRadius: BorderRadius.circular(20),
+                                          ),
+                                          child: const Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(Icons.zoom_in_rounded, color: Colors.white, size: 14),
+                                              SizedBox(width: 4),
+                                              Text('Tap to view', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              if (cr['murtikar_response'] != null) ...[
+                                const SizedBox(height: 10),
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.03),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
+                                  ),
+                                  child: Text(
+                                    'Your reply: ${cr['murtikar_response']}',
+                                    style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.black54, fontSize: 12, height: 1.4),
+                                  ),
+                                ),
+                              ],
+                              if (status == 'pending') ...[
+                                const SizedBox(height: 14),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(0xFF00C896),
+                                          padding: const EdgeInsets.symmetric(vertical: 12),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                        ),
+                                        onPressed: () => _showChangeRequestResponseDialog(cr['id'], 'accepted'),
+                                        child: const Text('✓ Accept', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(0xFFFF5E57),
+                                          padding: const EdgeInsets.symmetric(vertical: 12),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                        ),
+                                        onPressed: () => _showChangeRequestResponseDialog(cr['id'], 'rejected'),
+                                        child: const Text('✕ Reject', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    } catch (e, stack) {
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(16),
+                        color: Colors.red.withOpacity(0.1),
+                        child: Text(
+                          'Render Error: $e\n$stack',
+                          style: const TextStyle(color: Colors.red, fontSize: 12),
+                        ),
+                      );
+                    }
                   }),
               ],
             ),
