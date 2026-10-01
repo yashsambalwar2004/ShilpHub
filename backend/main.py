@@ -723,7 +723,13 @@ def create_booking(
             raise HTTPException(status_code=400, detail=f"Booking number {booking_number} already exists.")
             
         # Update the counter so auto-generation continues from this manual number
-        c.execute("INSERT OR IGNORE INTO booking_counters VALUES (?, 0)", (current_user["id"],))
+        try:
+            c.execute("INSERT INTO booking_counters (murtikar_id, last_number) VALUES (?, 0) ON CONFLICT (murtikar_id) DO NOTHING", (current_user["id"],))
+        except Exception:
+            try:
+                c.execute("INSERT OR IGNORE INTO booking_counters (murtikar_id, last_number) VALUES (?, 0)", (current_user["id"],))
+            except Exception:
+                pass
         c.execute("SELECT last_number FROM booking_counters WHERE murtikar_id = ?", (current_user["id"],))
         row = c.fetchone()
         current_max = row[0] if row else 0
