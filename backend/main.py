@@ -724,7 +724,11 @@ def create_booking(
             
         # Update the counter so auto-generation continues from this manual number
         c.execute("INSERT OR IGNORE INTO booking_counters VALUES (?, 0)", (current_user["id"],))
-        c.execute("UPDATE booking_counters SET last_number = MAX(last_number, ?) WHERE murtikar_id = ?", (manual_num, current_user["id"]))
+        c.execute("SELECT last_number FROM booking_counters WHERE murtikar_id = ?", (current_user["id"],))
+        row = c.fetchone()
+        current_max = row[0] if row else 0
+        if manual_num > current_max:
+            c.execute("UPDATE booking_counters SET last_number = ? WHERE murtikar_id = ?", (manual_num, current_user["id"]))
     else:
         booking_number = generate_booking_number(current_user["id"], conn)
     now = datetime.datetime.now(datetime.timezone.utc).isoformat()
