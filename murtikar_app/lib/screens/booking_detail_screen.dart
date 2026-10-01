@@ -53,7 +53,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
         );
       }
     } finally {
-      if (mounted && (showLoading || _booking == null)) {
+      if (mounted) {
         setState(() => _isLoading = false);
       }
     }
@@ -1131,9 +1131,10 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                               const SizedBox(height: 10),
                               GestureDetector(
                                 onTap: () {
+                                  final serverHost = ApiService.baseUrl.replaceAll('/api', '');
                                   final imgUrl = cr['photo_url'].toString().startsWith('http')
                                       ? cr['photo_url'].toString()
-                                      : '${ApiService.baseUrl}${cr['photo_url']}';
+                                      : '$serverHost${cr['photo_url']}';
                                   _showFullImageDialog(imgUrl);
                                 },
                                 child: ClipRRect(
@@ -1144,7 +1145,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                                       Image.network(
                                         cr['photo_url'].toString().startsWith('http')
                                             ? cr['photo_url'].toString()
-                                            : '${ApiService.baseUrl}${cr['photo_url']}',
+                                            : '${ApiService.baseUrl.replaceAll('/api', '')}${cr['photo_url']}',
                                         height: 180,
                                         width: double.infinity,
                                         fit: BoxFit.cover,

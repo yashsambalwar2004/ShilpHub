@@ -72,39 +72,13 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(
-                  controller: shopCtrl,
-                  style: TextStyle(color: theme.colorScheme.onSurface),
-                  decoration: InputDecoration(labelText: 'Workshop / Kala Kendra Name', labelStyle: TextStyle(color: isDark ? Colors.grey : Colors.black54)),
-                ),
-                TextField(
-                  controller: nameCtrl,
-                  style: TextStyle(color: theme.colorScheme.onSurface),
-                  decoration: InputDecoration(labelText: 'Master Artisan Name', labelStyle: TextStyle(color: isDark ? Colors.grey : Colors.black54)),
-                ),
-                TextField(
-                  controller: cityCtrl,
-                  style: TextStyle(color: theme.colorScheme.onSurface),
-                  decoration: InputDecoration(labelText: 'City', labelStyle: TextStyle(color: isDark ? Colors.grey : Colors.black54)),
-                ),
-                TextField(
-                  controller: phoneCtrl,
-                  style: TextStyle(color: theme.colorScheme.onSurface),
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(labelText: '10-digit Mobile', labelStyle: TextStyle(color: isDark ? Colors.grey : Colors.black54)),
-                ),
-                TextField(
-                  controller: passCtrl,
-                  style: TextStyle(color: theme.colorScheme.onSurface),
-                  obscureText: true,
-                  decoration: InputDecoration(labelText: 'Password', labelStyle: TextStyle(color: isDark ? Colors.grey : Colors.black54)),
-                ),
-                TextField(
-                  controller: expCtrl,
-                  style: TextStyle(color: theme.colorScheme.onSurface),
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: 'Experience (Years)', labelStyle: TextStyle(color: isDark ? Colors.grey : Colors.black54)),
-                ),
+                const SizedBox(height: 10),
+                _buildRegField('Workshop / Kala Kendra Name', shopCtrl, theme, isDark),
+                _buildRegField('Master Artisan Name', nameCtrl, theme, isDark),
+                _buildRegField('City', cityCtrl, theme, isDark),
+                _buildRegField('10-digit Mobile', phoneCtrl, theme, isDark, type: TextInputType.phone),
+                _buildRegField('Password', passCtrl, theme, isDark, obscure: true),
+                _buildRegField('Experience (Years)', expCtrl, theme, isDark, type: TextInputType.number),
               ],
             ),
           ),
@@ -145,6 +119,27 @@ class _LoginScreenState extends State<LoginScreen> {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildRegField(String label, TextEditingController ctrl, ThemeData theme, bool isDark, {bool obscure = false, TextInputType type = TextInputType.text}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextField(
+        controller: ctrl,
+        style: TextStyle(color: theme.colorScheme.onSurface),
+        obscureText: obscure,
+        keyboardType: type,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(color: isDark ? Colors.grey : Colors.black54),
+          filled: true,
+          fillColor: isDark ? const Color(0xFF222232) : Colors.grey.shade100,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.primaryColor.withOpacity(0.5), width: 2)),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        ),
+      ),
     );
   }
 

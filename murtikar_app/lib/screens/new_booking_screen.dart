@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../services/localization_service.dart';
@@ -18,7 +19,8 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
   final _totalCtrl = TextEditingController(text: '25000');
   final _advanceCtrl = TextEditingController(text: '5000');
   final _noteCtrl = TextEditingController();
-  final _pinCtrl = TextEditingController(text: '1234');
+  final _pinCtrl = TextEditingController(text: (1000 + Random().nextInt(999000)).toString());
+  final _sequenceCtrl = TextEditingController();
 
   String _festival = 'ganesh_utsav_2026';
   String _idolType = 'ganesha';
@@ -76,7 +78,8 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
         'expected_delivery_date': _deliveryDate.toIso8601String().substring(0, 10),
         'notes': _noteCtrl.text.trim(),
         'customer_auth_type': 'pin',
-        'customer_credential': _pinCtrl.text.trim().isEmpty ? '1234' : _pinCtrl.text.trim(),
+        'customer_credential': _pinCtrl.text.trim().isEmpty ? (1000 + Random().nextInt(999000)).toString() : _pinCtrl.text.trim(),
+        if (_sequenceCtrl.text.trim().isNotEmpty) 'manual_sequence': _sequenceCtrl.text.trim(),
       });
 
       if (!mounted) return;
@@ -111,6 +114,27 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Booking Number Section
+              _buildSectionTitle('0. Booking Details (Optional)'),
+              TextFormField(
+                controller: _sequenceCtrl,
+                style: const TextStyle(color: Colors.white),
+                keyboardType: TextInputType.number,
+                maxLength: 10,
+                decoration: InputDecoration(
+                  labelText: 'Manual Sequence (e.g. 1, 12, or 00001)',
+                  labelStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                  prefixIcon: const Icon(Icons.receipt, color: Color(0xFFD35400), size: 20),
+                  prefixText: 'MUR-${DateTime.now().year}-',
+                  prefixStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  filled: true,
+                  fillColor: const Color(0xFF1E1E2E),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  counterText: '',
+                ),
+              ),
+              const SizedBox(height: 20),
+
               // Customer Details Section
               _buildSectionTitle('1. Customer Information'),
               TextFormField(

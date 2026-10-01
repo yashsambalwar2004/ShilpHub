@@ -24,7 +24,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Map<String, dynamic> _bookingData = {};
   String? _selectedFestival;
   String? _selectedStage;
-  final _searchController = TextEditingController();
+  late final _searchController = TextEditingController(text: 'MUR-${DateTime.now().year}-');
 
   List<dynamic> _festivals = [];
   Map<String, dynamic> _profile = {};
@@ -248,7 +248,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _fetchBookings({bool showLoading = false}) async {
-    if (showLoading || _bookingData == null) {
+    if (showLoading || _bookingData.isEmpty) {
       setState(() => _isLoading = true);
     }
     try {
@@ -259,13 +259,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
       if (mounted) setState(() => _bookingData = data);
     } catch (e) {
-      if (mounted && _bookingData == null) {
+      if (mounted && _bookingData.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error loading bookings: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
-      if (mounted && (showLoading || _bookingData == null)) {
+      if (mounted) {
         setState(() => _isLoading = false);
       }
     }

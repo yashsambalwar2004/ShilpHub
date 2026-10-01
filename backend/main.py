@@ -98,6 +98,7 @@ class BookingCreateRequest(BaseModel):
     advance_note: Optional[str] = None
     expected_delivery_date: str
     notes: Optional[str] = None
+    manual_sequence: Optional[str] = None
     # Initial customer credential setup.
     # If no credential is sent, a random 6-digit PIN is generated and returned
     # once in the response so the murtikar can share it with the customer.
@@ -710,7 +711,22 @@ def create_booking(
     c = conn.cursor()
 
     booking_id = str(uuid.uuid4())
-    booking_number = generate_booking_number(current_user["id"], conn)
+    if req.manual_sequence:
+        if not req.manual_sequence.isdigit() or len(req.manual_sequence) > 10 or len(req.manual_sequence) == 0:
+            raise HTTPException(status_code=400, detail="Manual sequence must be a number (1 to 10 digits).")
+        year = datetime.datetime.now().year
+        # Pad it to 5 digits so it matches MUR-YYYY-XXXXX format consistently.
+        manual_num = int(req.manual_sequence)
+        booking_number = f"MUR-{year}-{manual_num:05d}"
+        c.execute("SELECT 1 FROM bookings WHERE booking_number = ?", (booking_number,))
+        if c.fetchone():
+            raise HTTPException(status_code=400, detail=f"Booking number {booking_number} already exists.")
+            
+        # Update the counter so auto-generation continues from this manual number
+        c.execute("INSERT OR IGNORE INTO booking_counters VALUES (?, 0)", (current_user["id"],))
+        c.execute("UPDATE booking_counters SET last_number = MAX(last_number, ?) WHERE murtikar_id = ?", (manual_num, current_user["id"]))
+    else:
+        booking_number = generate_booking_number(current_user["id"], conn)
     now = datetime.datetime.now(datetime.timezone.utc).isoformat()
     advance_date = req.advance_received_date or datetime.date.today().isoformat()
 

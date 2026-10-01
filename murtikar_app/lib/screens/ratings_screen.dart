@@ -28,7 +28,7 @@ class _RatingsScreenState extends State<RatingsScreen> {
       final r = await ApiService.getRatings();
       if (mounted) setState(() => _data = r);
     } catch (_) {} finally {
-      if (mounted && (showLoading || _data.isEmpty)) {
+      if (mounted) {
         setState(() => _isLoading = false);
       }
     }
