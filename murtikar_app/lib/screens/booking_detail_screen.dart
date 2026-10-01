@@ -1083,22 +1083,15 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                     try {
                       final status = cr['status'] as String? ?? 'pending';
                       final changeType = cr['change_type'] as String? ?? 'Unknown';
-                      final statusColor = status == 'accepted'
-                          ? const Color(0xFF00C896)
-                          : (status == 'rejected' ? const Color(0xFFFF5E57) : const Color(0xFFF39C12));
-                      final statusIcon = status == 'accepted' ? '🟢' : (status == 'rejected' ? '🔴' : '🟡');
-                      return Container(
+                      
+                      return Card(
+                        color: theme.colorScheme.surface,
                         margin: const EdgeInsets.only(bottom: 12),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.surface,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border(
-                            left: BorderSide(color: statusColor, width: 3),
-                            top: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
-                            right: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
-                            bottom: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
-                          ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: isDark ? Colors.white12 : Colors.black12),
                         ),
+                        elevation: 0,
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(
@@ -1110,87 +1103,68 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                                   Expanded(
                                     child: Text(
                                       changeType.replaceAll('_', ' ').toUpperCase(),
-                                      style: TextStyle(color: theme.colorScheme.secondary, fontWeight: FontWeight.bold, fontSize: 13),
+                                      style: TextStyle(color: theme.colorScheme.secondary, fontWeight: FontWeight.bold, fontSize: 14),
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: statusColor.withOpacity(0.12),
+                                      color: status == 'accepted' ? Colors.green.withOpacity(0.2) : (status == 'rejected' ? Colors.red.withOpacity(0.2) : Colors.amber.withOpacity(0.2)),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Text(
-                                      '$statusIcon ${status.toUpperCase()}',
-                                      style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 11),
+                                      status.toUpperCase(),
+                                      style: TextStyle(
+                                        color: status == 'accepted' ? Colors.green : (status == 'rejected' ? Colors.red : Colors.amber),
+                                        fontWeight: FontWeight.bold, fontSize: 11
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
-                              Text(cr['description']?.toString() ?? '', style: TextStyle(color: theme.colorScheme.onSurface, height: 1.5)),
+                              const SizedBox(height: 12),
+                              Text(cr['description']?.toString() ?? 'No description provided.', style: TextStyle(color: theme.colorScheme.onSurface, height: 1.5)),
+                              
                               if (cr['photo_url'] != null && cr['photo_url'].toString().isNotEmpty) ...[
-                                const SizedBox(height: 10),
-                                GestureDetector(
-                                  onTap: () {
-                                    final serverHost = ApiService.baseUrl.replaceAll('/api', '');
-                                    final imgUrl = cr['photo_url'].toString().startsWith('http')
-                                        ? cr['photo_url'].toString()
-                                        : '$serverHost${cr['photo_url']}';
-                                    _showFullImageDialog(imgUrl);
-                                  },
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: Stack(
-                                      alignment: Alignment.bottomRight,
-                                      children: [
-                                        Image.network(
-                                          cr['photo_url'].toString().startsWith('http')
-                                              ? cr['photo_url'].toString()
-                                              : '${ApiService.baseUrl.replaceAll('/api', '')}${cr['photo_url']}',
-                                          height: 180,
-                                          width: double.infinity,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                                        ),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                          margin: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            color: Colors.black.withOpacity(0.65),
-                                            borderRadius: BorderRadius.circular(20),
-                                          ),
-                                          child: const Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(Icons.zoom_in_rounded, color: Colors.white, size: 14),
-                                              SizedBox(width: 4),
-                                              Text('Tap to view', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
+                                const SizedBox(height: 16),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton.icon(
+                                    onPressed: () {
+                                      final serverHost = ApiService.baseUrl.replaceAll('/api', '');
+                                      final imgUrl = cr['photo_url'].toString().startsWith('http')
+                                          ? cr['photo_url'].toString()
+                                          : '$serverHost${cr['photo_url']}';
+                                      _showFullImageDialog(imgUrl);
+                                    },
+                                    icon: const Icon(Icons.image, color: Colors.white),
+                                    label: const Text('View Attached Photo', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF34495E),
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                     ),
                                   ),
                                 ),
                               ],
+
                               if (cr['murtikar_response'] != null) ...[
-                                const SizedBox(height: 10),
+                                const SizedBox(height: 12),
                                 Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.03),
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
+                                    color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
                                     'Your reply: ${cr['murtikar_response']}',
-                                    style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.black54, fontSize: 12, height: 1.4),
+                                    style: TextStyle(color: isDark ? Colors.grey.shade400 : Colors.black54, fontSize: 13, fontStyle: FontStyle.italic),
                                   ),
                                 ),
                               ],
+
                               if (status == 'pending') ...[
-                                const SizedBox(height: 14),
+                                const SizedBox(height: 16),
                                 Row(
                                   children: [
                                     Expanded(
@@ -1198,19 +1172,19 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: const Color(0xFF00C896),
                                           padding: const EdgeInsets.symmetric(vertical: 12),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                         ),
                                         onPressed: () => _showChangeRequestResponseDialog(cr['id'], 'accepted'),
                                         child: const Text('✓ Accept', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                       ),
                                     ),
-                                    const SizedBox(width: 10),
+                                    const SizedBox(width: 12),
                                     Expanded(
                                       child: ElevatedButton(
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: const Color(0xFFFF5E57),
                                           padding: const EdgeInsets.symmetric(vertical: 12),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                         ),
                                         onPressed: () => _showChangeRequestResponseDialog(cr['id'], 'rejected'),
                                         child: const Text('✕ Reject', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -1228,10 +1202,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> with SingleTi
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(16),
                         color: Colors.red.withOpacity(0.1),
-                        child: Text(
-                          'Render Error: $e\n$stack',
-                          style: const TextStyle(color: Colors.red, fontSize: 12),
-                        ),
+                        child: Text('Error: $e', style: const TextStyle(color: Colors.red)),
                       );
                     }
                   }),
